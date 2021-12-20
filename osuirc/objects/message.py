@@ -21,7 +21,7 @@ class Message(object):
             
             
     @property
-    def sender(self) -> str:
+    def author(self) -> str:
         return self._author
     
     @property
@@ -40,5 +40,5 @@ class Message(object):
     async def reply(self, content: str, ignore_limit: bool = False):
         """快速回復，如果發送者(sender)是在頻道上發言，則會回覆在頻道；發送者(sender)是用私人訊息，則會回覆給發送者
         """
-        target = self.channel or self.sender
+        target = self.channel or self.author
         await self._client.send(target, content, ignore_limit)
