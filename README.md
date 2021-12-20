@@ -4,6 +4,14 @@
 
 這還未完成，還有一些我不知道的訊息我不知道改如何處理，還有頻道的存在辨識等等...
 
+## 安裝
+
+```
+pip install git+https://github.com/NotPeOpLe/osuirc.git
+```
+
+## 用法
+
 用法非常簡單，就跟寫Discord機器人一樣:
 
 ```py
