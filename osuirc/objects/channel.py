@@ -14,25 +14,13 @@ class Channel(object):
         self.created_time: float = 0.0
         self.users: Set[str] = set()
 
-        # mutiplayer settings
-        self._mp_id: int = int(self.name.removeprefix('#mp_'))
-        self.game_id: int = 0
-        self.room_name: str = None
-        self.password: str = None
-        self.size: int = 16
-        self.slots: Dict[int, dict] = {}
-        self.score_mode: int = 0
-        self.team_mode: int = 0
-        self.game_mode: int = 0
-        self.active_mods: int = 0
-        self.current_map: int = 0
-        self.host: str = None
-        self.started: bool = False
-        self.players: int = 0
-
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {self.name}>"
+
+    
+    def __str__(self) -> str:
+        return self.name
 
 
     @property
@@ -56,5 +44,20 @@ class Channel(object):
         await self._client.send_command(f'PART {self.name}')
 
 
-    def all_ready(self) -> bool:
-        pass
+class MpChannel(Channel):
+    def __init__(self, client: "IrcClient", name: str) -> None:
+        super().__init__(client, name)
+        self._mp_id: int = int(self.name.removeprefix('#mp_'))
+        self.game_id: int = 0
+        self.room_name: str = None
+        self.password: str = None
+        self.size: int = 16
+        self.slots: Dict[int, dict] = {}
+        self.score_mode: int = 0
+        self.team_mode: int = 0
+        self.game_mode: int = 0
+        self.active_mods: int = 0
+        self.current_map: int = 0
+        self.host: str = None
+        self.started: bool = False
+        self.players: int = 0

@@ -6,7 +6,7 @@ import re
 from typing import Any, Coroutine, Dict, List, Optional, Pattern, Set, Union
 
 from .handler import IrcHandler
-from .objects.channel import Channel
+from .objects.channel import Channel, MpChannel
 from .utils.errors import EmptyError
 from .utils.events import Events
 
@@ -26,7 +26,7 @@ class IrcClient:
         self.log: logging.Logger = logging.getLogger('IrcClient')
         self.log.setLevel(logging.DEBUG if self.debug else logging.INFO)
 
-        self.channels: Dict[str, Channel] = {}
+        self.channels: Dict[str, Union[Channel, MpChannel]] = {}
         self.users: Set[str] = set()
         self.commands: Dict[str, Command] = {}
         self.messages: Dict[Pattern[str], MsgCommand] = {}
@@ -117,8 +117,9 @@ class IrcClient:
             await asyncio.sleep(self.limit)
 
 
-    def create_channel(self, channel_name):
-        self.channels[channel_name] = channel = Channel(self, channel_name)
+    def create_channel(self, channel_name: str) -> Union[Channel, MpChannel]:
+        channel = MpChannel(self, channel_name) if channel_name.startwith('#mp_') else Channel(self, channel_name)
+        self.channels[channel_name] = channel
         self.log.debug(f'NEW_CHANNEL: {channel=}')
         return channel
     
@@ -149,7 +150,7 @@ class IrcClient:
             for m in self.messages:
                 if match := re.match(ctx.content):
                     command = self.messages[m]
-                    if ctx.sender.lower() in command.users or command.users is None:
+                    if ctx.author.lower() in command.allow_users or command.allow_users is None:
                         return asyncio.create_task(command(ctx, **match.groupdict()))
                 
                 
