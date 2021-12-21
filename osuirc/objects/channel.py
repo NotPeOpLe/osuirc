@@ -28,11 +28,6 @@ class Channel(object):
         return True if self.name.startswith('#mp_') else False
 
 
-    @property
-    def mp_id(self):
-        return self._mp_id
-
-
     async def send(self, content: str, ignore_limit: bool = False) -> None:
         if not self._joined:
             raise NotInChannel(f"無法將訊息傳送到'{self.name}'，因為你已離開頻道。")
@@ -61,3 +56,8 @@ class MpChannel(Channel):
         self.host: str = None
         self.started: bool = False
         self.players: int = 0
+
+        
+    @property
+    def mp_id(self):
+        return self._mp_id
