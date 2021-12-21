@@ -70,8 +70,9 @@ class IrcClient:
         self.log.debug(f'{content}')
 
 
-    async def send(self, target, content: str, ignore_limit: bool = False):
-        task = self.send_command(f'PRIVMSG {target} :{content}')
+    async def send(self, target, content: str, *, action: bool = False, ignore_limit: bool = False):
+        _content = f'\x01ACTION {content}\x01' if action else content
+        task = self.send_command(f'PRIVMSG {target} :{_content}')
 
         if not ignore_limit:
             self.sendmsg_queue.put_nowait(task)
