@@ -42,7 +42,7 @@ class IrcClient:
         except KeyboardInterrupt:
             self.stop()
         finally:
-            self.log.info('[red]Closed[/]')
+            self.log.info('Closed')
         
 
     def stop(self):
@@ -67,7 +67,7 @@ class IrcClient:
 
     async def send_command(self, content: str):
         self.writer.write((content + '\r\n').encode(self.encoding))
-        self.log.debug(f'[yellow]{content}[/]')
+        self.log.debug(f'{content}')
 
 
     async def send(self, target, content: str, ignore_limit: bool = False):
