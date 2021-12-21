@@ -12,7 +12,7 @@ class Command:
     def __repr__(self) -> str:
         return f'<Command {self.func}>'
     
-    async def __call__(self, ctx: Message, *args: Any, **kwds: Any) -> Any:
+    async def __call__(self, ctx: 'Message', *args: Any, **kwds: Any) -> Any:
         if ctx.author.lower() not in self.allow_users:
             return
         await self.func(ctx, *args, **kwds)
