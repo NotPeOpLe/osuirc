@@ -23,8 +23,10 @@ class IrcClient:
         self.debug: bool = debug
         self.limit: float = 1.0
         self.running: bool = False
-        self.log: logging.Logger = logging.getLogger('IrcClient')
-        self.log.setLevel(logging.DEBUG if self.debug else logging.INFO)
+        self.log: logging.Logger = logging.getLogger(self.__class__.__name__)
+        logging.basicConfig(
+            level=logging.DEBUG if self.debug else logging.INFO
+        )
 
         self.channels: Dict[str, Union[Channel, MpChannel]] = {}
         self.users: Set[str] = set()
