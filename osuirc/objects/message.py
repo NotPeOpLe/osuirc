@@ -41,7 +41,7 @@ class Message(object):
     
     
     async def reply(self, content: str, *, action: bool = False, ignore_limit: bool = False):
-        """快速回復，如果發送者(sender)是在頻道上發言，則會回覆在頻道；發送者(sender)是用私人訊息，則會回覆給發送者
         """
-        target = self.channel or self.author
-        await self._client.send(target, content, action=action, ignore_limit=ignore_limit)
+        快速回復，如果發送者(sender)是在頻道上發言，則會回覆在頻道；發送者(sender)是用私人訊息，則會回覆給發送者
+        """
+        await self._client.send(self._target, content, action=action, ignore_limit=ignore_limit)
