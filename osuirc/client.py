@@ -118,7 +118,7 @@ class IrcClient:
 
 
     def create_channel(self, channel_name: str) -> Union[Channel, MpChannel]:
-        channel = MpChannel(self, channel_name) if channel_name.startwith('#mp_') else Channel(self, channel_name)
+        channel = MpChannel(self, channel_name) if channel_name.startswith('#mp_') else Channel(self, channel_name)
         self.channels[channel_name] = channel
         self.log.debug(f'NEW_CHANNEL: {channel=}')
         return channel
