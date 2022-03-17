@@ -66,7 +66,7 @@ class IrcClient:
 
     async def send_command(self, content: str):
         self.writer.write((content + '\r\n').encode(self.encoding))
-        self.log.debug(f'{content}')
+        self.log.debug(f'SEND_COMMAND: {content=}')
 
 
     async def send(self, target, content: str, *, action: bool = False, ignore_limit: bool = False):
