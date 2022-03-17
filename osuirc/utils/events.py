@@ -1,6 +1,6 @@
 from asyncio import Event
 
-class Events:
+class ClientEvents:
     def __init__(self, loop) -> None:
         self.loop = loop
     

@@ -8,7 +8,7 @@ from typing import Any, Coroutine, Dict, List, Optional, Pattern, Set, Union
 from .handler import IrcHandler
 from .objects.channel import Channel, MpChannel
 from .utils.errors import EmptyError
-from .utils.events import Events
+from .utils.events import ClientEvents
 
 
 class IrcClient:
@@ -50,7 +50,7 @@ class IrcClient:
 
     async def main(self):
         self.loop = asyncio.get_event_loop()
-        self.events = Events(self.loop)
+        self.events = ClientEvents(self.loop)
         self.sendmsg_queue = asyncio.Queue(loop=self.loop)
             
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
