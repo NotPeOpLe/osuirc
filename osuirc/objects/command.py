@@ -5,22 +5,19 @@ if TYPE_CHECKING:
 
 
 class Command:
-    def __init__(self, func: Coroutine, allow_users: List[str] = None) -> None:
+    def __init__(self, func: Coroutine) -> None:
         self.func = func
-        self.allow_users = list(*map(lambda u: u.lower(), allow_users))
     
     def __repr__(self) -> str:
         return f'<Command {self.func}>'
     
     async def __call__(self, ctx: 'Message', *args: Any, **kwds: Any) -> Any:
-        if ctx.author.lower() not in self.allow_users:
-            return
         await self.func(ctx, *args, **kwds)
         
         
 class MsgCommand(Command):
-    def __init__(self, func: Coroutine, allow_users: List[str] = None) -> None:
-        super().__init__(func, allow_users)
+    def __init__(self, func: Coroutine) -> None:
+        super().__init__(func)
         
     def __repr__(self) -> str:
         return f'<MsgCommand {self.func}>'
