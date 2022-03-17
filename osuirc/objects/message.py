@@ -9,7 +9,8 @@ if TYPE_CHECKING:
 class Message(object):
     def __init__(self, client: "IrcClient", author: str, target: str, content: str) -> None:
         self._client: "IrcClient" = client
-        self._author: str = author
+        self._author: User = User(client, author)
+        self._channel: "Channel" = None
         self._target: str = target
         self._content: str = content
         
@@ -21,7 +22,7 @@ class Message(object):
             
             
     @property
-    def author(self) -> str:
+    def author(self) -> User:
         return self._author
     
     @property
