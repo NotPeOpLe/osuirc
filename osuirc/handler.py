@@ -38,7 +38,7 @@ class IrcHandler:
             if m := re.match(pattern, payload):
                 return await self.events[pattern](*m.groups())
         
-        self.log.debug(f'[blue]{payload}[/]', extra={'mark': True}) # 無處理方式的訊息
+        self.log.debug(f'NOT PROCESSED: {payload=}') # 無處理方式的訊息
 
 
     async def nothing(self, *_):
