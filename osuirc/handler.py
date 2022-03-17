@@ -117,7 +117,7 @@ class IrcHandler:
         self.log.debug(f'ON_CHANNEL_TOPIC: {channel_name=} {topic=}')
         channel = self.client.channels[channel_name]
         if m := re.match(MP_GAMEID, topic):
-            game_id = m.group(1)
+            game_id = int(m.group(1))
             channel.game_id = game_id
 
 
@@ -133,4 +133,6 @@ class IrcHandler:
         
     
     async def on_endofnames(self, channel_name: str):
+        channel = self.client.channels[channel_name]
         self.log.debug(f'ON_ENDOFNAMES: {channel_name=}')
+        self.log.debug(f'channel={channel.__dict__}')
