@@ -1,4 +1,4 @@
-from enum import EnumMeta, Flag, IntEnum, IntFlag
+from enum import IntEnum, IntFlag
 
 class GameMode(IntEnum):
     Osu             = 0
@@ -52,8 +52,8 @@ class Mods(IntFlag):
     Key2            = 268435456
     ScoreV2         = 536870912
     Mirror          = 1073741824
-    KeyMod = Key1 | Key2 | Key3 | Key4 | Key5 | Key6 | Key7 | Key8 | Key9 | KeyCoop
-    FreeMod = NoFail | Easy | Hidden | HardRock | SuddenDeath | Flashlight | FadeIn | Relax | Relax2 | SpunOut | KeyMod
+    KeyMod          = Key1 | Key2 | Key3 | Key4 | Key5 | Key6 | Key7 | Key8 | Key9 | KeyCoop
+    FreeMod         = NoFail | Easy | Hidden | HardRock | SuddenDeath | Flashlight | FadeIn | Relax | Relax2 | SpunOut | KeyMod
     ScoreIncreaseMods = Hidden | HardRock | DoubleTime | Flashlight | FadeIn
     
     @classmethod
