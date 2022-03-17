@@ -24,6 +24,7 @@ class IrcClient:
         self.limit: float = 1.0
         self.running: bool = False
         self.log: logging.Logger = logging.getLogger(self.__class__.__name__)
+        self.loop = asyncio.get_event_loop()
 
         self.channels: Dict[str, Union[Channel, MpChannel]] = {}
         self.users: Set[str] = set()
@@ -37,7 +38,7 @@ class IrcClient:
         self.running = True
         
         try:
-            asyncio.run(self.main())
+            self.loop.run_until_complete(self.main())
         except KeyboardInterrupt:
             self.stop()
         finally:
@@ -49,7 +50,6 @@ class IrcClient:
 
 
     async def main(self):
-        self.loop = asyncio.get_event_loop()
         self.events = ClientEvents(self.loop)
         self.sendmsg_queue = asyncio.Queue(loop=self.loop)
             
