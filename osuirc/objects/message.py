@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from ..objects.user import User
+
 
 if TYPE_CHECKING:
     from ..client import IrcClient
@@ -38,8 +40,8 @@ class Message(object):
         return self._private
     
     
-    async def reply(self, content: str, ignore_limit: bool = False):
+    async def reply(self, content: str, *, action: bool = False, ignore_limit: bool = False):
         """快速回復，如果發送者(sender)是在頻道上發言，則會回覆在頻道；發送者(sender)是用私人訊息，則會回覆給發送者
         """
         target = self.channel or self.author
-        await self._client.send(target, content, ignore_limit)
+        await self._client.send(target, content, action=action, ignore_limit=ignore_limit)

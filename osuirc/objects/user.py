@@ -9,5 +9,5 @@ class User(object):
         self.username = username
         self.__client = client
 
-    async def send(self, message: str, action: bool = False):
-        await self.__client.send(self.username, message, action)
+    async def send(self, message: str, *, action: bool = False, ignore_limit: bool = False):
+        await self.__client.send(self.username, message, action=action, ignore_limit=ignore_limit)

@@ -28,11 +28,11 @@ class Channel(object):
         return True if self.name.startswith('#mp_') else False
 
 
-    async def send(self, content: str, ignore_limit: bool = False) -> None:
+    async def send(self, content: str, *, action: bool = False, ignore_limit: bool = False) -> None:
         if not self._joined:
             raise NotInChannel(f"無法將訊息傳送到'{self.name}'，因為你已離開頻道。")
         
-        await self._client.send(self.name, content, ignore_limit)
+        await self._client.send(self.name, content, action=action, ignore_limit=ignore_limit)
 
 
     async def part(self) -> None:
