@@ -51,6 +51,7 @@ class IrcHandler:
 
 
     async def on_motd(self, code: str, message: str):
+        self.log.debug(message)
         if code == '375':
             self.client.events.motd_start.set()
         elif code == '376':
