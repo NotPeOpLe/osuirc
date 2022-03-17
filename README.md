@@ -7,7 +7,7 @@
 ## 安裝
 
 ```
-pip install git+https://github.com/NotPeOpLe/osuirc.git
+pip install -U git+https://github.com/NotPeOpLe/osuirc.git
 ```
 
 ## 用法
