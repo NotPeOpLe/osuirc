@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ..client import IrcClient
 
 class User(object):
-    def __init__(self, client: IrcClient, username: str) -> None:
+    def __init__(self, client: "IrcClient", username: str) -> None:
         self.username = username
         self.__client = client
 
