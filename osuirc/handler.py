@@ -97,7 +97,7 @@ class IrcHandler:
         channel = self.client.channels[channel_name]
         channel.users.discard(user)
         if user.lower() == self.client.nickname.lower():
-            channel._joined = False
+            channel.joined = False
         asyncio.create_task(self.client.on_part(user, channel))
 
 

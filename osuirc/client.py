@@ -27,7 +27,6 @@ class IrcClient:
         self.loop = asyncio.get_event_loop()
 
         self.channels: Dict[str, Union[Channel, MpChannel]] = {}
-        self.users: Set[str] = set()
         self.commands: Dict[str, Command] = {}
         self.messages: Dict[Pattern[str], MsgCommand] = {}
 

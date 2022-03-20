@@ -6,11 +6,11 @@ if TYPE_CHECKING:
 class Channel(object):
     def __init__(self, client: "IrcClient", name: str) -> None:
         self.name: str = name
-        self._client: "IrcClient" = client
-        self._joined: bool = True
+        self.__client: "IrcClient" = client
+        self.joined: bool = True
 
         # 創建後更新
-        self.topic: str = ''        
+        self.topic: str = ''
         self.created_time: float = 0.0
         self.users: Set[str] = set()
 
@@ -29,14 +29,14 @@ class Channel(object):
 
 
     async def send(self, content: str, *, action: bool = False, ignore_limit: bool = False) -> None:
-        if not self._joined:
+        if not self.joined:
             raise NotInChannel(f"無法將訊息傳送到'{self.name}'，因為你已離開頻道。")
         
-        await self._client.send(self.name, content, action=action, ignore_limit=ignore_limit)
+        await self.__client.send(self.name, content, action=action, ignore_limit=ignore_limit)
 
 
     async def part(self) -> None:
-        await self._client.send_command(f'PART {self.name}')
+        await self.__client.send_command(f'PART {self.name}')
 
 
 class MpChannel(Channel):
