@@ -149,8 +149,7 @@ class IrcClient:
             for m in self.messages:
                 if match := re.match(ctx.content):
                     command = self.messages[m]
-                    if ctx.author.lower() in command.allow_users or command.allow_users is None:
-                        return asyncio.create_task(command(ctx, **match.groupdict()))
+                    return asyncio.create_task(command(ctx, **match.groupdict()))
                 
                 
     # Events
