@@ -130,10 +130,10 @@ class IrcClient:
         return wapper
     
 
-    def message(self, regex: str, users: Optional[List[str]] = None):
+    def message(self, regex: str):
         def wapper(func: Coroutine):
             pattern = re.compile(regex)
-            self.messages[pattern] = MsgCommand(func, users)
+            self.messages[pattern] = MsgCommand(func)
         return wapper
 
 
