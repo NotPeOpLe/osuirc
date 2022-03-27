@@ -5,7 +5,7 @@ from .objects.message import Message
 import re
 from typing import Any, Coroutine, Dict, List, Optional, Pattern, Set, Union
 
-from .handler import IrcHandler
+from .handler import IrcHandler, MultiplayerHandler
 from .objects.channel import Channel, MpChannel
 from .utils.errors import EmptyError
 from .utils.events import ClientEvents
@@ -31,6 +31,7 @@ class IrcClient:
         self.messages: Dict[Pattern[str], MsgCommand] = {}
 
         self.handler = IrcHandler(self)
+        self.mphandler = MultiplayerHandler()
 
     
     def run(self):
@@ -146,6 +147,9 @@ class IrcClient:
             if command := self.commands.get(cmd):
                 return asyncio.create_task(command(ctx, *args))
         else:
+            if ctx.author.username == 'BanchoBot':
+                return asyncio.create_task(self.mphandler(ctx))
+
             for m in self.messages:
                 if match := re.match(ctx.content):
                     command = self.messages[m]

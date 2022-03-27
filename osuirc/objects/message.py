@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from ..objects.user import User
 
 
 if TYPE_CHECKING:
     from ..client import IrcClient
-    from ..objects.channel import Channel
+    from ..objects.channel import Channel, MpChannel
 
 
 class Message(object):
@@ -23,7 +23,7 @@ class Message(object):
         return self.__author
 
     @property
-    def channel(self) -> "Channel":
+    def channel(self) -> Union["Channel", "MpChannel"]:
         return self.__channel
 
     @property
