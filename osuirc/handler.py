@@ -3,8 +3,6 @@ import re
 from logging import Logger
 from typing import TYPE_CHECKING, Coroutine, Dict, Pattern, Union
 
-from osuirc.objects.slot import Slots
-
 from .objects.osuenums import GameMode, Mods, ScoreMode, TeamMode, TeamType
 from .objects.message import Message
 from .utils.errors import LoginFailError
