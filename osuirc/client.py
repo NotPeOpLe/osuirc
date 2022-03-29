@@ -51,7 +51,7 @@ class IrcClient:
 
     async def main(self):
         self.events = ClientEvents(self.loop)
-        self.sendmsg_queue = asyncio.Queue(loop=self.loop)
+        self.sendmsg_queue = asyncio.Queue()
             
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
             
