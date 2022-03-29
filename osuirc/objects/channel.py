@@ -1,5 +1,9 @@
+from typing import TYPE_CHECKING, Set
+
+from ..objects.osuenums import Mods, ScoreMode, TeamMode
+from ..objects.slot import Slots
 from ..utils.errors import NotInChannel
-from typing import TYPE_CHECKING, Dict, Set
+
 if TYPE_CHECKING:
     from ..client import IrcClient
 
@@ -45,17 +49,21 @@ class MpChannel(Channel):
         self._mp_id: int = int(self.name.removeprefix('#mp_'))
         self.game_id: int = 0
         self.room_name: str = None
-        self.password: str = None
+        self.has_password: bool = True
         self.size: int = 16
-        self.slots: Dict[int, dict] = {}
-        self.score_mode: int = 0
-        self.team_mode: int = 0
+        self.slots: Slots = Slots()
+        self.score_mode: ScoreMode = ScoreMode.Score
+        self.team_mode: TeamMode = TeamMode.HeadToHead
         self.game_mode: int = 0
-        self.active_mods: int = 0
-        self.current_map: int = 0
+        self.active_mods: Mods = Mods.NoMod
+        self.freemod: bool = False
+        self.current_map_id: int = 0
+        self.current_map_repr: str = ""
         self.host: str = None
         self.started: bool = False
-        self.players: int = 0
+        self.locked: bool = False
+        self.player_count: int = 0
+        self.refs: set = {}
 
         
     @property

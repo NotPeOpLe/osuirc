@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from ..objects.user import User
 
 
 if TYPE_CHECKING:
     from ..client import IrcClient
-    from ..objects.channel import Channel
+    from ..objects.channel import Channel, MpChannel
 
 
 class Message(object):
@@ -15,7 +15,9 @@ class Message(object):
         self.__target: str = target
         self.__content: str = content
         # 如果訊息類類型私人，那頻道將會是 client.nickname
-        self.__channel = self.__client.channels.get(target, self.__client.create_channel(target))
+        self.__channel = self.__client.channels.get(target)
+        if not self.__channel:
+            self.__channel = self.__client.create_channel(target)
         self.__private = target[0] != '#'
 
     @property
@@ -23,7 +25,7 @@ class Message(object):
         return self.__author
 
     @property
-    def channel(self) -> "Channel":
+    def channel(self) -> Union["Channel", "MpChannel"]:
         return self.__channel
 
     @property

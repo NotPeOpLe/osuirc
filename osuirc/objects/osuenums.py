@@ -1,10 +1,16 @@
-from enum import IntEnum, IntFlag
+from enum import Enum, IntEnum, IntFlag
+import logging
 
 class GameMode(IntEnum):
     Osu             = 0
     Taiko           = 1
-    Catch           = 2
-    Mania           = 3
+    CatchTheBeat    = 2
+    OsuMania        = 3
+
+class TeamType(Enum):
+    Neutral         = None
+    Blue            = "blue"
+    Red             = "red"
     
 class ScoreMode(IntEnum):
     Score           = 0
@@ -57,8 +63,13 @@ class Mods(IntFlag):
     ScoreIncreaseMods = Hidden | HardRock | DoubleTime | Flashlight | FadeIn
     
     @classmethod
-    def get(cls, *mods_name):
+    def from_str(cls, *mods: str):
         result = cls(0)
-        for n in mods_name:
-            result |= cls._member_map_[n]
+        for m in mods:
+            try:
+                if isinstance(m, str):
+                    result |= cls._member_map_[m]
+            except KeyError:
+                logging.warning(f"{m} not in enum Mods")
+                continue
         return result

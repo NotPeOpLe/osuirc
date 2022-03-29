@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="osuirc", # 
-    version="0.0.3",
+    version="0.0.4",
     author="NotPeOpLe",
     author_email="code840@outlook.com",
     description="專門給osu使用的簡易客戶端",
