@@ -74,3 +74,5 @@ class Slots(object):
         elif isinstance(key, str):
             return self._slots[self._username_slot[key]]
         
+    def __iter__(self):
+        return iter(self._slots)
