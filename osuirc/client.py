@@ -31,7 +31,7 @@ class IrcClient:
         self.messages: Dict[Pattern[str], MsgCommand] = {}
 
         self.handler = IrcHandler(self)
-        self.mphandler = MultiplayerHandler()
+        self.mphandler = MultiplayerHandler(self)
 
     
     def run(self):
@@ -166,10 +166,10 @@ class IrcClient:
     async def on_message(self, ctx: Message):
         await self.call_command(ctx)
     
-    async def on_join(self, user: str, channel: Channel):
+    async def on_join(self, user: str, channel: Union[Channel, MpChannel]):
         pass
     
-    async def on_part(self, user: str, channel: Channel):
+    async def on_part(self, user: str, channel: Union[Channel, MpChannel]):
         pass
     
     async def on_quit(self, user: str, reason: str):
