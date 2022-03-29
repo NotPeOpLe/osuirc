@@ -15,7 +15,9 @@ class Message(object):
         self.__target: str = target
         self.__content: str = content
         # 如果訊息類類型私人，那頻道將會是 client.nickname
-        self.__channel = self.__client.channels.get(target, self.__client.create_channel(target))
+        self.__channel = self.__client.channels.get(target)
+        if not self.__channel:
+            self.__channel = self.__client.create_channel(target)
         self.__private = target[0] != '#'
 
     @property
