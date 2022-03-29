@@ -232,7 +232,7 @@ class MultiplayerHandler:
         # Room name updated to "484"
         # !mp settings
         # Room name: 840, History: https://osu.ppy.sh/mp/98933063
-        channel.name = room_name
+        channel.room_name = room_name
 
     MP_UPDATE_MAP
     MP_CHANGED_MAP
@@ -258,7 +258,7 @@ class MultiplayerHandler:
     async def update_player_count(self, channel: "MpChannel", player_count: str):
         # !mp settings
         # Players: 1
-        channel.player_count = player_count
+        channel.player_count = int(player_count)
         channel.slots.clear()
 
     MP_SLOT_INFO
