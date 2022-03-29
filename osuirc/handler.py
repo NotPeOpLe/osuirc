@@ -169,7 +169,7 @@ class MultiplayerHandler:
 
     async def __call__(self, ctx: Message) -> None:
         for pattern in self.events:
-            if m := re.match(pattern, ctx):
+            if m := re.match(pattern, ctx.content):
                 return await self.events[pattern](ctx.channel, **m.groupdict())
 
     MP_LOCKED
