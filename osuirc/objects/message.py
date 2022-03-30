@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
 
 class Message(object):
-    def __init__(self, client: "IrcClient", author: str, target: str, content: str) -> None:
+    def __init__(self, client: "IrcClient", author: User, target: str, content: str) -> None:
         self.__client: "IrcClient" = client
-        self.__author: User = User(client, author)
+        self.__author: User = author
         self.__target: str = target
         self.__content: str = content
         # 如果訊息類類型私人，那頻道將會是 client.nickname
@@ -19,6 +19,14 @@ class Message(object):
         if not self.__channel:
             self.__channel = self.__client.create_channel(target)
         self.__private = target[0] != '#'
+
+
+    @classmethod
+    async def create(cls, client: "IrcClient", author: str, target: str, content: str):
+        if not (user := client.users_cache.get(author)):
+            user = await User.from_api(client, author)
+            client.users_cache[author] = user
+        return cls(client, user, target, content)
 
     @property
     def author(self) -> User:

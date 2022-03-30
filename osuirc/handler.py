@@ -60,69 +60,69 @@ class IrcHandler:
         await self.client.events.welcome.wait()
         await self.client.events.motd_start.wait()
         await self.client.events.motd_end.wait()
-        self.log.debug('ON_READY.')
         asyncio.create_task(self.client.on_ready())
+        self.log.debug('ON_READY.')
 
     async def on_login_fail(self, message: str):
         self.log.debug(f'ON_LOGIN_FAIL: {message=}')
         raise LoginFailError()
 
     async def on_ping(self, content: str):
-        self.log.debug(f'ON_PING: {content=}')
         await self.client.send_command(f'PONG {content}')
         asyncio.create_task(self.client.on_ping(content))
+        self.log.debug(f'ON_PING: {content=}')
 
     async def on_quit(self, user: str, reason: str):
         asyncio.create_task(self.client.on_quit(user, reason))
 
     async def on_join(self, user: str, channel_name: str):
-        self.log.debug(f'ON_JOIN: {user=} {channel_name=}')
         channel = self.client.channels.get(channel_name)
         if not channel:
             channel = self.client.create_channel(channel_name)
         channel.users.add(user)
         asyncio.create_task(self.client.on_join(user, channel))
+        self.log.debug(f'ON_JOIN: {user=} {channel_name=}')
 
     async def on_part(self, user: str, channel_name: str):
-        self.log.debug(f'ON_PART: {user=} {channel_name=}')
         channel = self.client.channels[channel_name]
         channel.users.discard(user)
         if user.lower() == self.client.nickname.lower():
             channel.joined = False
         asyncio.create_task(self.client.on_part(user, channel))
+        self.log.debug(f'ON_PART: {user=} {channel_name=}')
 
     async def on_message(self, sender: str, target: str, content: str):
-        self.log.debug(f'ON_MESSAGE: {sender=} {target=} {content=}')
-        context = Message(self.client, sender, target, content)
+        context = await Message.create(self.client, sender, target, content)
         if sender == self.client.nickname:
             if content.startswith(':'):
                 await self.client.send_command(content[1:])
         asyncio.create_task(self.client.on_message(context))
+        self.log.debug(f'ON_MESSAGE: {sender=} {target=} {content=}')
 
     async def on_mode(self, admin: str, channel_name: str, mode: str, user: str):
         self.log.debug(f'ON_MODE: {admin=} {channel_name=} {mode=} {user=}')
 
     async def on_chtopic(self, channel_name: str, topic: str):
-        self.log.debug(f'ON_CHANNEL_TOPIC: {channel_name=} {topic=}')
         channel = self.client.channels[channel_name]
         if m := re.match(MP_GAMEID, topic):
             game_id = int(m.group(1))
             channel.game_id = game_id
+        self.log.debug(f'ON_CHANNEL_TOPIC: {channel_name=} {topic=}')
 
     async def on_chtime(self, channel_name: str, time: int):
-        self.log.debug(f'ON_CHANNEL_CREATED_TIME: {channel_name=} {time=}')
         channel = self.client.channels[channel_name]
         channel.created_time = float(time)
+        self.log.debug(f'ON_CHANNEL_CREATED_TIME: {channel_name=} {time=}')
 
     async def on_chusers(self, channel_name: str, users: str):
-        self.log.debug(f'ON_CHANNEL_USERS: {channel_name=} {users=}')
         channel = self.client.channels[channel_name]
         channel.users = set((u[1:] for u in users.split()))
+        self.log.debug(f'ON_CHANNEL_USERS: {channel_name=} {users=}')
 
     async def on_endofnames(self, channel_name: str):
-        channel = self.client.channels[channel_name]
         self.log.debug(f'ON_ENDOFNAMES: {channel_name=}')
         self.log.debug(f'channel={channel.__dict__}')
+        channel = self.client.channels[channel_name]
 
 
 class MultiplayerHandler:

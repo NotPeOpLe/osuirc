@@ -1,5 +1,7 @@
 import asyncio
 import logging
+
+from .objects.user import User
 from .objects.command import Command, MsgCommand
 from .objects.message import Message
 import re
@@ -12,13 +14,14 @@ from .utils.events import ClientEvents
 
 
 class IrcClient:
-    def __init__(self, nickname: str, password: str, *, debug: bool = False, prefix: str = '!') -> None:
+    def __init__(self, nickname: str, password: str, *, debug: bool = False, prefix: str = '!', api_key: str = None) -> None:
         # static
         self.host: str = 'cho.ppy.sh'
         self.port: int = 6667
         self.encoding: str = 'UTF-8'
         self.nickname: str = nickname
         self.password: str = password
+        self.api_key: str = api_key
         self.prefix: str = prefix
         self.debug: bool = debug
         self.limit: float = 1.0
@@ -29,6 +32,7 @@ class IrcClient:
         self.channels: Dict[str, Union[Channel, MpChannel]] = {}
         self.commands: Dict[str, Command] = {}
         self.messages: Dict[Pattern[str], MsgCommand] = {}
+        self.users_cache: Dict[str, User] = {}
 
         self.handler = IrcHandler(self)
         self.mphandler = MultiplayerHandler(self)
