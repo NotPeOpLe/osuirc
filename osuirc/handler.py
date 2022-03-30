@@ -170,13 +170,13 @@ class MultiplayerHandler:
             if m := re.match(pattern, ctx.content):
                 return await self.events[pattern](ctx.channel, **m.groupdict())
 
-    MP_LOCKED
+    # MP_LOCKED
     async def on_lock(self, channel: "MpChannel"):
         # !mp lock
         # Locked the match
         channel.locked = True
 
-    MP_UNLOCK
+    # MP_UNLOCK
     async def on_unlock(self, channel: "MpChannel"):
         # !mp unlock
         # Unlocked the match
@@ -189,13 +189,13 @@ class MultiplayerHandler:
     #     # fail: You cannot create any more tournament matches. Please close any previous tournament matches you have open.
     #     pass
 
-    MP_CHANGED_SIZE
+    # MP_CHANGED_SIZE
     async def on_change_size(self, channel: "MpChannel", size: int):
         # !mp size 12
         # Changed match to size 12
         channel.size = size
 
-    MP_CHANGED_SET
+    # MP_CHANGED_SET
     async def on_set(self, channel: "MpChannel", settings: str):
         # !mp set 0 0 2
         # Changed match settings to 2 slots, HeadToHead, Score
@@ -210,7 +210,7 @@ class MultiplayerHandler:
             if score_mode := ScoreMode._member_map_.get(s):
                 channel.score_mode = score_mode
 
-    MP_PLAYER_MOVED
+    # MP_PLAYER_MOVED
     async def on_move(self, channel: "MpChannel", username: str, new_slot: str):
         # _CHIMERA moved to slot 5
         channel.slots.move(username, int(new_slot))
@@ -220,13 +220,13 @@ class MultiplayerHandler:
     #     # Invited _CHIMERA to the room
     #     ...
 
-    MP_CHANGED_HOST
-    MP_CLEARHOST
+    # MP_CHANGED_HOST
+    # MP_CLEARHOST
     async def on_change_host(self, channel: "MpChannel", host=None):
         channel.host = host
 
-    MP_CHANGED_NAME
-    MP_UPDATE_NAME
+    # MP_CHANGED_NAME
+    # MP_UPDATE_NAME
     async def update_room_name(self, channel: "MpChannel", room_name: str):
         # !mp name 484
         # Room name updated to "484"
@@ -234,9 +234,9 @@ class MultiplayerHandler:
         # Room name: 840, History: https://osu.ppy.sh/mp/98933063
         channel.room_name = room_name
 
-    MP_UPDATE_MAP
-    MP_CHANGED_MAP
-    MP_CHANGED_MAP2
+    # MP_UPDATE_MAP
+    # MP_CHANGED_MAP
+    # MP_CHANGED_MAP2
     async def update_current_map(self, channel: "MpChannel", map_id: str, map_repl: str):
         # !mp settings
         # Beatmap: https://osu.ppy.sh/b/3360065 Raimukun - Firmament star [Cup]
@@ -247,21 +247,21 @@ class MultiplayerHandler:
         channel.current_map_id = int(map_id)
         channel.current_map_repr = map_repl
 
-    MP_UPDATE_SET
+    # MP_UPDATE_SET
     async def update_settings(self, channel: "MpChannel", team_mode: str, score_mode: str):
         # !mp settings
         # Team mode: HeadToHead, Win condition: Score
         channel.team_mode = TeamMode[team_mode]
         channel.score_mode = ScoreMode[score_mode]
 
-    MP_UPDATE_PC
+    # MP_UPDATE_PC
     async def update_player_count(self, channel: "MpChannel", player_count: str):
         # !mp settings
         # Players: 1
         channel.player_count = int(player_count)
         channel.slots.clear()
 
-    MP_SLOT_INFO
+    # MP_SLOT_INFO
     async def update_palyer(
         self,
         channel: "MpChannel",
@@ -298,31 +298,31 @@ class MultiplayerHandler:
             enabled_mods=enabled_mods
         )
 
-    MP_STARTED
+    # MP_STARTED
     async def on_start(self, channel: "MpChannel"):
         # !mp start
         # success: The match has started!
         # fail: The match has already been started
         channel.started = True
 
-    MP_ABORTED
+    # MP_ABORTED
     async def on_abort(self, channel: "MpChannel", ):
         # !mp abort
         # success: Aborted the match
         # fail: The match is not in progress
         channel.started = False
 
-    MP_CHANGED_TEAM
+    # MP_CHANGED_TEAM
     async def on_change_team(self, channel: "MpChannel", user: str, team: str):
         # _CHIMERA changed to Red
         channel.slots.get(user).team = TeamType[team]
 
-    MP_CHANGED_MODE
+    # MP_CHANGED_MODE
     async def on_change_mode(self, channel: "MpChannel", game_mode: str):
         # Changed match mode to OsuMania
         channel.game_mode = GameMode[game_mode]
 
-    MP_CHANGED_MODS
+    # MP_CHANGED_MODS
     async def on_change_mods(self, channel: "MpChannel", enabled_mods: str, freemod: str):
         # no params: Disabled all mods, disabled FreeMod
         # has params: Enabled NoFail, disabled FreeMod
@@ -330,18 +330,18 @@ class MultiplayerHandler:
         channel.active_mods = Mods.from_str(*enabled_mods.split(", "))
         channel.freemod = True if freemod == "en" else False
 
-    MP_CHANGED_PASSWD
+    # MP_CHANGED_PASSWD
     async def on_change_password(self, channel: "MpChannel", password: str):
         # no params: Removed the match password
         # has params: Changed the match password
         channel.has_password = True if password == "Changed" else False
 
-    MP_ADDED_REF
+    # MP_ADDED_REF
     async def on_addref(self, channel: "MpChannel", ref: str):
         # Added _CHIMERA to the match referees
         channel.refs.add(ref)
 
-    MP_REMOVED_REF
+    # MP_REMOVED_REF
     async def on_removeref(self, channel: "MpChannel", ref: str):
         # Removed _CHIMERA from the match referees
         channel.refs.remove(ref)
@@ -352,38 +352,38 @@ class MultiplayerHandler:
         # _CHIMERA
         # 這玩意有點麻煩 可能要用 event 暫時不使用
 
-    MP_KICKED
+    # MP_KICKED
     async def on_kick(self, channel: "MpChannel", user: str):
         # Kicked _CHIMERA from the match
         pass
 
-    MP_TIMER_START
+    # MP_TIMER_START
     async def on_timer(self, channel: "MpChannel", time: str):
         # Countdown ends in ?? minutes/seconds
         pass
 
-    MP_TIMER_ABORT
+    # MP_TIMER_ABORT
     async def on_aborttimer(self, channel: "MpChannel"):
         # Countdown aborted
         pass
 
-    MP_BANNED
+    # MP_BANNED
     async def on_ban(self, channel: "MpChannel", user: str):
         # Banned _CHIMERA from the match
         pass
 
-    MP_CLOSE
+    # MP_CLOSE
     async def on_close(self, channel: "MpChannel"):
         # Closed the match
         pass
 
-    MP_JOIN
+    # MP_JOIN
     async def on_join(self, channel: "MpChannel", user: str, slot: str, team: Union[str, None]):
         # _CHIMERA joined in slot 1.
         # _CHIMERA joined in slot 1 for team blue/red.
         channel.slots.set(int(slot), user, TeamType(team))
 
-    MP_LEFT
+    # MP_LEFT
     async def on_left(self, channel: "MpChannel", user: str):
         # _CHIMERA left the game.
         channel.slots.remove_from_username(user)
@@ -392,17 +392,17 @@ class MultiplayerHandler:
     # async def on_changing_map(self, channel: "MpChannel", ):
         # Host is changing map...
 
-    MP_ALL_READY
+    # MP_ALL_READY
     async def on_ready(self, channel: "MpChannel"):
         # All players are ready
         pass
 
-    MP_FINISED_PLAYING
+    # MP_FINISED_PLAYING
     async def on_result(self, channel: "MpChannel", user: str, score: str, status: str):
         # _CHIMERA finished playing (Score: 86698, FAILED).
         passed = True if status == "PASSED" else False
 
-    MP_FINISED
+    # MP_FINISED
     async def on_finished(self, channel: "MpChannel"):
         # The match has finished!
         channel.started = False
