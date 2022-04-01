@@ -1,5 +1,10 @@
-class EmptyError(Exception): pass
+class EmptyError(Exception):
+    pass
 
-class LoginFailError(Exception): pass
 
-class NotInChannel(Exception): pass
+class LoginFailError(Exception):
+    pass
+
+
+class NotInChannel(Exception):
+    pass

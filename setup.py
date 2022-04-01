@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="osuirc", # 
+    name="osuirc",
     version="0.0.4",
     author="NotPeOpLe",
     author_email="code840@outlook.com",

@@ -7,6 +7,7 @@ from ..utils.errors import NotInChannel
 if TYPE_CHECKING:
     from ..client import IrcClient
 
+
 class Channel(object):
     def __init__(self, client: "IrcClient", name: str) -> None:
         self.name: str = name
@@ -18,26 +19,21 @@ class Channel(object):
         self.created_time: float = 0.0
         self.users: Set[str] = set()
 
-
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {self.name}>"
 
-    
     def __str__(self) -> str:
         return self.name
-
 
     @property
     def is_mutiplayer(self):
         return True if self.name.startswith('#mp_') else False
 
-
     async def send(self, content: str, *, action: bool = False, ignore_limit: bool = False) -> None:
         if not self.joined:
             raise NotInChannel(f"無法將訊息傳送到'{self.name}'，因為你已離開頻道。")
-        
-        await self.__client.send(self.name, content, action=action, ignore_limit=ignore_limit)
 
+        await self.__client.send(self.name, content, action=action, ignore_limit=ignore_limit)
 
     async def part(self) -> None:
         await self.__client.send_command(f'PART {self.name}')
@@ -65,7 +61,6 @@ class MpChannel(Channel):
         self.player_count: int = 0
         self.refs: set = {}
 
-        
     @property
     def mp_id(self):
         return self._mp_id
