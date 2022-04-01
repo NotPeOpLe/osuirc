@@ -3,8 +3,9 @@ import re
 from logging import Logger
 from typing import TYPE_CHECKING, Coroutine, Dict, Pattern, Union
 
-from .objects.osuenums import GameMode, Mods, ScoreMode, TeamMode, TeamType
 from .objects.message import Message
+from .objects.osuenums import GameMode, Mods, ScoreMode, TeamMode, TeamType
+from .objects.user import User
 from .utils.errors import LoginFailError
 from .utils.regex import *
 
@@ -92,12 +93,15 @@ class IrcHandler:
         self.log.debug(f'ON_PART: {user=} {channel_name=}')
 
     async def on_message(self, sender: str, target: str, content: str):
-        context = await Message.create(self.client, sender, target, content)
+        if not (author := self.client.users_cache.get(sender)):
+            author = User(self.client, sender)
+            self.client.users_cache[sender] = author
+        context = Message(self.client, author, target, content)
         if sender == self.client.nickname:
             if content.startswith(':'):
                 await self.client.send_command(content[1:])
         asyncio.create_task(self.client.on_message(context))
-        self.log.debug(f'ON_MESSAGE: {sender=} {target=} {content=}')
+        self.log.debug(f'ON_MESSAGE: {author=} {target=} {content=}')
 
     async def on_mode(self, admin: str, channel_name: str, mode: str, user: str):
         self.log.debug(f'ON_MODE: {admin=} {channel_name=} {mode=} {user=}')

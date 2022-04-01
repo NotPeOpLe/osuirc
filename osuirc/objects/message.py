@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Union
 
 from ..objects.user import User
 
-
 if TYPE_CHECKING:
     from ..client import IrcClient
     from ..objects.channel import Channel, MpChannel
@@ -19,14 +18,6 @@ class Message(object):
         if not self.__channel:
             self.__channel = self.__client.create_channel(target)
         self.__private = target[0] != '#'
-
-
-    @classmethod
-    async def create(cls, client: "IrcClient", author: str, target: str, content: str):
-        if not (user := client.users_cache.get(author)):
-            user = await User.from_api(client, author)
-            client.users_cache[author] = user
-        return cls(client, user, target, content)
 
     @property
     def author(self) -> User:
