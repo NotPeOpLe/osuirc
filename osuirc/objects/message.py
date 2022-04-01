@@ -2,16 +2,15 @@ from typing import TYPE_CHECKING, Union
 
 from ..objects.user import User
 
-
 if TYPE_CHECKING:
     from ..client import IrcClient
     from ..objects.channel import Channel, MpChannel
 
 
 class Message(object):
-    def __init__(self, client: "IrcClient", author: str, target: str, content: str) -> None:
+    def __init__(self, client: "IrcClient", author: User, target: str, content: str) -> None:
         self.__client: "IrcClient" = client
-        self.__author: User = User(client, author)
+        self.__author: User = author
         self.__target: str = target
         self.__content: str = content
         # 如果訊息類類型私人，那頻道將會是 client.nickname

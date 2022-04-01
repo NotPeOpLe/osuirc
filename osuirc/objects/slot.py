@@ -1,16 +1,16 @@
-from typing import Dict, List
+from typing import Dict
 
-from osuirc.objects.osuenums import TeamType, Mods
+from osuirc.objects.osuenums import Mods, TeamType
 
 
 class Slot(object):
     def __init__(
-        self, 
-        username: str, 
-        user_id: int = None, 
-        status: str = "Not Ready", 
-        is_host: bool = False, 
-        team: TeamType = TeamType.Neutral, 
+        self,
+        username: str,
+        user_id: int = None,
+        status: str = "Not Ready",
+        is_host: bool = False,
+        team: TeamType = TeamType.Neutral,
         enabled_mods: Mods = Mods.NoMod
     ):
         self.username: str = username
@@ -23,37 +23,34 @@ class Slot(object):
 
 
 class Slots(object):
-    _slots: Dict[int, Slot] = {} # 位置
-    _username_slot: Dict[str, int] = {} # 使用者索引
-    
-        
+    _slots: Dict[int, Slot] = {}  # 位置
+    _username_slot: Dict[str, int] = {}  # 使用者索引
+
     def get(self, username: str):
         """從username獲取Slot"""
         slot_number = self._username_slot.get(username)
         return self._slots.get(slot_number)
-    
 
     def move(self, username: str, new_slot: int):
         """移動使用者"""
-        old_slot = self._username_slot[username] # 獲取使用者的位置
-        self._username_slot[username] = new_slot # 變更使用者索引
+        old_slot = self._username_slot[username]  # 獲取使用者的位置
+        self._username_slot[username] = new_slot  # 變更使用者索引
         self._slots[new_slot] = self._slots.pop(old_slot)
 
-    
     def set(
         self,
         slot_number: int,
         username: str,
-        user_id: int = None, 
-        status: str = "Not Ready", 
-        is_host: bool = False, 
-        team: TeamType = TeamType.Neutral, 
+        user_id: int = None,
+        status: str = "Not Ready",
+        is_host: bool = False,
+        team: TeamType = TeamType.Neutral,
         enabled_mods: Mods = Mods.NoMod
     ):
         """新增使用者"""
-        self._slots[slot_number] = Slot(username, user_id, status, is_host, team, enabled_mods)
+        self._slots[slot_number] = Slot(
+            username, user_id, status, is_host, team, enabled_mods)
         self._username_slot[username] = slot_number
-
 
     def remove(self, slot_number: int):
         """移除使用者"""
@@ -62,17 +59,17 @@ class Slots(object):
         del self._slots[slot_number]
 
     def remove_from_username(self, username: str):
-        del self._slots[self._username_slot.pop(username)] # ???
+        del self._slots[self._username_slot.pop(username)]  # ???
 
     def clear(self):
         self._slots = {}
         self._username_slot = {}
-    
+
     def __getitem__(self, key):
         if isinstance(key, int):
             return self._slots[key]
         elif isinstance(key, str):
             return self._slots[self._username_slot[key]]
-        
+
     def __iter__(self):
         return iter(self._slots)

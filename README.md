@@ -1,6 +1,6 @@
 # osuirc
 
-這是用python寫的irc客戶端專門給osu使用，我沒有完全的理解async到底是什麼，反正他能運行...
+這是用 python 寫的 irc 客戶端專門給 osu 使用，我沒有完全的理解 async 到底是什麼，反正他能運行...
 
 這還未完成，還有一些我不知道的訊息我不知道改如何處理，還有頻道的存在辨識等等...
 
@@ -12,7 +12,7 @@ pip install -U git+https://github.com/NotPeOpLe/osuirc.git
 
 ## 用法
 
-用法非常簡單，就跟寫Discord機器人一樣:
+用法非常簡單，就跟寫 Discord 機器人一樣:
 
 ```py
 from osuirc import IrcClient
@@ -50,7 +50,7 @@ bot.run()
 
 ## 2022-03-30 更新
 
-新增 MultiplayerHandler，此程式專門處理MP房的事件及管理房間的狀態
+新增 MultiplayerHandler，此程式專門處理 MP 房的事件及管理房間的狀態
 
 ```py
 import logging
@@ -87,7 +87,7 @@ class CutsomMultiplayerHandler(MultiplayerHandler):
     async def on_ready(self, channel: "MpChannel"):
         # 所有人準備時進行檢查
         channel.check_players = Event() # flag
-        await channel.send("!mp settings") 
+        await channel.send("!mp settings")
         await channel.check_players.wait() # 等待檢查完
         if channel.checked:
             await channel.send("!mp start 10")
