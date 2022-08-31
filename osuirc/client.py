@@ -112,11 +112,17 @@ class IrcClient:
             await task
             await asyncio.sleep(self.limit)
 
-    def create_channel(self, channel_name: str) -> Union[Channel, MpChannel]:
-        channel = MpChannel(self, channel_name) if channel_name.startswith(
-            '#mp_') else Channel(self, channel_name)
-        self.channels[channel_name] = channel
-        self.log.debug(f'NEW_CHANNEL: {channel=}')
+    def get_channel(self, channel_name: str) -> Union[Channel, MpChannel]:
+        if channel_name[0] != '#':
+            if channel_name.lower() == self.nickname.lower():
+                return Channel(self, channel_name)
+            channel_name = '#' + channel_name
+        
+        channel = self.commands.get(channel_name)
+        if channel is None:
+            channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](self, channel_name)
+            log.debug(f'NEW_CHANNEL: {channel=}')
+        
         return channel
 
     def command(self, name: str = None):

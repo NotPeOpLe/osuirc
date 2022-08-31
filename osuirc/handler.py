@@ -77,9 +77,7 @@ class IrcHandler:
         asyncio.create_task(self.client.on_quit(user, reason))
 
     async def on_join(self, user: str, channel_name: str):
-        channel = self.client.channels.get(channel_name)
-        if not channel:
-            channel = self.client.create_channel(channel_name)
+        channel = self.client.get_channel(channel_name)
         channel.users.add(user)
         asyncio.create_task(self.client.on_join(user, channel))
         self.log.debug(f'ON_JOIN: {user=} {channel_name=}')
@@ -93,12 +91,12 @@ class IrcHandler:
         self.log.debug(f'ON_PART: {user=} {channel_name=}')
 
     async def on_message(self, sender: str, target: str, content: str):
-        if not (author := self.client.users_cache.get(sender)):
-            author = User(self.client, sender)
-            self.client.users_cache[sender] = author
-        context = Message(self.client, author, target, content)
+        if not (user := self.client.users_cache.get(sender)):
+            user = User(self.client, sender)
+            self.client.users_cache[sender] = user
+        context = Message(self.client, user, target, content)
         if sender == self.client.nickname:
-            if content.startswith(':'):
+            if content[0] == ':':
                 await self.client.send_command(content[1:])
         asyncio.create_task(self.client.on_message(context))
         self.log.debug(f'ON_MESSAGE: {author=} {target=} {content=}')
