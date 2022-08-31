@@ -27,7 +27,7 @@ class Channel(object):
 
     @property
     def is_mutiplayer(self):
-        return True if self.name.startswith('#mp_') else False
+        return self.name[:4] == "#mp_"
 
     async def send(self, content: str, *, action: bool = False, ignore_limit: bool = False) -> None:
         if not self.joined:
@@ -42,7 +42,7 @@ class Channel(object):
 class MpChannel(Channel):
     def __init__(self, client: "IrcClient", name: str) -> None:
         super().__init__(client, name)
-        self._mp_id: int = int(self.name.removeprefix('#mp_'))
+        self._mp_id: int = int(self.name[4:])
         self.game_id: int = 0
         self.room_name: str = None
         self.has_password: bool = True

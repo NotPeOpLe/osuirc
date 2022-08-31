@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import re
-from typing import Coroutine, Dict, Pattern, Union
+from typing import Dict, Pattern, Union
 
 from .handler import IrcHandler, MultiplayerHandler
 from .objects.channel import Channel, MpChannel
@@ -11,6 +11,7 @@ from .objects.user import User
 from .utils.errors import EmptyError
 from .utils.events import ClientEvents
 
+log = logging.getLogger("IrcClient")
 
 class IrcClient:
     def __init__(self, nickname: str, password: str, *, debug: bool = False, prefix: str = '!', api_key: str = None) -> None:
@@ -25,7 +26,6 @@ class IrcClient:
         self.debug: bool = debug
         self.limit: float = 1.0
         self.running: bool = False
-        self.log: logging.Logger = logging.getLogger(self.__class__.__name__)
         self.loop = asyncio.get_event_loop()
 
         self.channels: Dict[str, Union[Channel, MpChannel]] = {}
@@ -44,7 +44,7 @@ class IrcClient:
         except KeyboardInterrupt:
             self.stop()
         finally:
-            self.log.info('Closed')
+            log.info('Closed')
 
     def stop(self):
         self.running = False
@@ -65,7 +65,7 @@ class IrcClient:
 
     async def send_command(self, content: str):
         self.writer.write((content + '\r\n').encode(self.encoding))
-        self.log.debug(f'SEND_COMMAND: {content=}')
+        log.debug(f'SEND_COMMAND: {content=}')
 
     async def send(self, target, content: str, *, action: bool = False, ignore_limit: bool = False):
         _content = f'\x01ACTION {content}\x01' if action else content
@@ -80,8 +80,7 @@ class IrcClient:
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = '#' + \
-                channel if not channel.startswith('#') else channel
+            channel_name = ['#',''][channel[0] == '#'] + channel
         else:
             raise ValueError('channel 參數只支援 Channel、str 類別')
 
@@ -91,8 +90,7 @@ class IrcClient:
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = '#' + \
-                channel if not channel.startswith('#') else channel
+            channel_name = ['#',''][channel[0] == '#'] + channel
         else:
             raise ValueError('channel 參數只支援 Channel、str 類別')
 
@@ -132,13 +130,13 @@ class IrcClient:
         return wapper
 
     def message(self, regex: str):
-        def wapper(func: Coroutine):
+        def wapper(func):
             pattern = re.compile(regex)
             self.messages[pattern] = MsgCommand(func)
         return wapper
 
     async def call_command(self, ctx: Message):
-        if ctx.content.startswith('!'):
+        if ctx.content[0] == '!':
             ctx_split = ctx.content.removeprefix(self.prefix).split()
             cmd = ctx_split[0]
             args = ctx_split[1:]

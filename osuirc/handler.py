@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import re
 from logging import Logger
 from typing import TYPE_CHECKING, Coroutine, Dict, Pattern, Union
@@ -13,6 +14,8 @@ if TYPE_CHECKING:
     from .client import IrcClient
     from .objects.channel import MpChannel
 
+
+log = logging.getLogger("IrcClient")
 
 class IrcHandler:
     def __init__(self, client: "IrcClient") -> None:
@@ -39,7 +42,7 @@ class IrcHandler:
             if m := re.match(pattern, payload):
                 return await self.events[pattern](*m.groups())
 
-        self.log.debug(f'NOT PROCESSED: {payload=}')  # 無處理方式的訊息
+        log.debug(f'NOT PROCESSED: {payload=}')  # 無處理方式的訊息
 
     async def nothing(self, *_):
         return
@@ -49,7 +52,7 @@ class IrcHandler:
         asyncio.create_task(self.on_ready())
 
     async def on_motd(self, code: str, message: str):
-        self.log.debug(message)
+        log.debug(message)
         if code == '375':
             self.client.events.motd_start.set()
         elif code == '376':
@@ -62,16 +65,16 @@ class IrcHandler:
         await self.client.events.motd_start.wait()
         await self.client.events.motd_end.wait()
         asyncio.create_task(self.client.on_ready())
-        self.log.debug('ON_READY.')
+        log.debug('ON_READY.')
 
     async def on_login_fail(self, message: str):
-        self.log.debug(f'ON_LOGIN_FAIL: {message=}')
+        log.debug(f'ON_LOGIN_FAIL: {message=}')
         raise LoginFailError()
 
     async def on_ping(self, content: str):
         await self.client.send_command(f'PONG {content}')
         asyncio.create_task(self.client.on_ping(content))
-        self.log.debug(f'ON_PING: {content=}')
+        log.debug(f'ON_PING: {content=}')
 
     async def on_quit(self, user: str, reason: str):
         asyncio.create_task(self.client.on_quit(user, reason))
@@ -80,7 +83,7 @@ class IrcHandler:
         channel = self.client.get_channel(channel_name)
         channel.users.add(user)
         asyncio.create_task(self.client.on_join(user, channel))
-        self.log.debug(f'ON_JOIN: {user=} {channel_name=}')
+        log.debug(f'ON_JOIN: {user=} {channel_name=}')
 
     async def on_part(self, user: str, channel_name: str):
         channel = self.client.channels[channel_name]
@@ -88,7 +91,7 @@ class IrcHandler:
         if user.lower() == self.client.nickname.lower():
             channel.joined = False
         asyncio.create_task(self.client.on_part(user, channel))
-        self.log.debug(f'ON_PART: {user=} {channel_name=}')
+        log.debug(f'ON_PART: {user=} {channel_name=}')
 
     async def on_message(self, sender: str, target: str, content: str):
         if not (user := self.client.users_cache.get(sender)):
@@ -99,31 +102,31 @@ class IrcHandler:
             if content[0] == ':':
                 await self.client.send_command(content[1:])
         asyncio.create_task(self.client.on_message(context))
-        self.log.debug(f'ON_MESSAGE: {author=} {target=} {content=}')
+        log.debug(f'ON_MESSAGE: {user=} {target=} {content=}')
 
     async def on_mode(self, admin: str, channel_name: str, mode: str, user: str):
-        self.log.debug(f'ON_MODE: {admin=} {channel_name=} {mode=} {user=}')
+        log.debug(f'ON_MODE: {admin=} {channel_name=} {mode=} {user=}')
 
     async def on_chtopic(self, channel_name: str, topic: str):
         channel = self.client.channels[channel_name]
         if m := re.match(MP_GAMEID, topic):
             game_id = int(m.group(1))
             channel.game_id = game_id
-        self.log.debug(f'ON_CHANNEL_TOPIC: {channel_name=} {topic=}')
+        log.debug(f'ON_CHANNEL_TOPIC: {channel_name=} {topic=}')
 
     async def on_chtime(self, channel_name: str, time: int):
         channel = self.client.channels[channel_name]
         channel.created_time = float(time)
-        self.log.debug(f'ON_CHANNEL_CREATED_TIME: {channel_name=} {time=}')
+        log.debug(f'ON_CHANNEL_CREATED_TIME: {channel_name=} {time=}')
 
     async def on_chusers(self, channel_name: str, users: str):
         channel = self.client.channels[channel_name]
         channel.users = set((u[1:] for u in users.split()))
-        self.log.debug(f'ON_CHANNEL_USERS: {channel_name=} {users=}')
+        log.debug(f'ON_CHANNEL_USERS: {channel_name=} {users=}')
 
     async def on_endofnames(self, channel_name: str):
-        self.log.debug(f'ON_ENDOFNAMES: {channel_name=}')
-        self.log.debug(f'channel={channel.__dict__}')
+        log.debug(f'ON_ENDOFNAMES: {channel_name=}')
+        log.debug(f'channel={channel.__dict__}')
         channel = self.client.channels[channel_name]
 
 
