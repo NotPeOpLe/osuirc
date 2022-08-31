@@ -20,7 +20,6 @@ log = logging.getLogger("IrcClient")
 class IrcHandler:
     def __init__(self, client: "IrcClient") -> None:
         self.client: "IrcClient" = client
-        self.log: Logger = self.client.log
 
         self.events: Dict[Pattern[str], Coroutine] = {
             WELCOME: self.on_welcome,
@@ -35,6 +34,10 @@ class IrcHandler:
             CHCTIME: self.on_chtime,
             CHUSERS: self.on_chusers,
             CHENDNA: self.on_endofnames,
+            WHOISUSER: self.on_whoisuser,
+            WHOISSERVER: self.on_whoisserver,
+            WHOISCHANNELS: self.on_whoischannels,
+            ENDOFWHOIS: self.on_endofwhois,
         }
 
     async def __call__(self, payload: str) -> None:
@@ -128,6 +131,20 @@ class IrcHandler:
         log.debug(f'ON_ENDOFNAMES: {channel_name=}')
         log.debug(f'channel={channel.__dict__}')
         channel = self.client.channels[channel_name]
+        
+    async def on_whoisuser(self, username: str, user_id: str):
+        user = self.client.users_cache[username]
+        user.user_id = int(user_id)
+        log.debug(f'ON_WHOISUSER: {username=} {user_id=}')
+        
+    async def on_whoisserver(self, username: str, host: str, server_info: str):
+        log.debug(f'ON_WHOISSERVER: {username=} {host=} {server_info=}')
+    
+    async def on_whoischannels(self, username: str, channels: str):
+        log.debug(f'ON_WHOISCHANNELS: {username=} {channels=}')
+        
+    async def on_endofwhois(self, username: str,):
+        log.debug(f'ON_ENDOFWHOIS: {username=} End of /WHOIS list')
 
 
 class MultiplayerHandler:

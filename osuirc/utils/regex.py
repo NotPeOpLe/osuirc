@@ -13,6 +13,10 @@ CHTOPIC = re.compile(r'^:cho\.ppy\.sh 332 .+ (.+) :(.*)')
 CHCTIME = re.compile(r'^:cho\.ppy\.sh 333 .+ (.+) .+!.+@cho\.ppy\.sh (\d+)')
 CHUSERS = re.compile(r'^:cho\.ppy\.sh 353 .+ = (.+) :(.*)')
 CHENDNA = re.compile(r'^:cho\.ppy\.sh 366 .+ (.+) :End of /NAMES list')
+WHOISUSER = re.compile(r'^:cho\.ppy\.sh 311 .+ (.+) https://osu\.ppy\.sh/u/(\d+) \* :.*')
+WHOISSERVER = re.compile(r'^:cho\.ppy\.sh 312 .+ (.+) (.+) :(.+)')
+ENDOFWHOIS = re.compile(r'^:cho\.ppy\.sh 318 .+ (.+) :End of /WHOIS list')
+WHOISCHANNELS = re.compile(r'^:cho\.ppy\.sh 319 .+ (.+) :(.*)')
 
 
 MP_GAMEID = re.compile(r'multiplayer game #(\d+)')
