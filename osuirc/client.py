@@ -1,11 +1,9 @@
 import asyncio
 import logging
-import re
-from typing import Dict, Pattern, Union
+from typing import Dict, Union, Callable
 
 from .handler import IrcHandler, MultiplayerHandler
 from .objects.channel import Channel, MpChannel
-from .objects.command import Command, MsgCommand
 from .objects.message import Message
 from .objects.user import User
 from .utils.errors import EmptyError
@@ -29,8 +27,7 @@ class IrcClient:
         self.loop = asyncio.get_event_loop()
 
         self.channels: Dict[str, Union[Channel, MpChannel]] = {}
-        self.commands: Dict[str, Command] = {}
-        self.messages: Dict[Pattern[str], MsgCommand] = {}
+        self.commands: Dict[str, Callable] = {}
         self.users_cache: Dict[str, User] = {}
 
         self.handler = IrcHandler(self)
@@ -126,13 +123,7 @@ class IrcClient:
     def command(self, name: str = None):
         def wapper(func):
             cmd_name = name or func.__name__
-            self.commands[cmd_name] = Command(func)
-        return wapper
-
-    def message(self, regex: str):
-        def wapper(func):
-            pattern = re.compile(regex)
-            self.messages[pattern] = MsgCommand(func)
+            self.commands[cmd_name] = func
         return wapper
 
     async def call_command(self, ctx: Message):
@@ -146,11 +137,6 @@ class IrcClient:
         else:
             if ctx.author.username == 'BanchoBot' and not ctx.is_private:
                 return asyncio.create_task(self.mphandler(ctx))
-
-            for m in self.messages:
-                if match := re.match(m, ctx.content):
-                    command = self.messages[m]
-                    return asyncio.create_task(command(ctx, **match.groupdict()))
 
     # Events
 

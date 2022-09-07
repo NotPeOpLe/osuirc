@@ -35,16 +35,6 @@ async def roll(ctx, num=100):
     point = random.randint(0, num)
     await ctx.reply(f'{ctx.author} roll {point} point(s).')
 
-# 訊息觸發
-@bot.message('727')
-async def say_WYSI(ctx):
-    await ctx.reply('WHEN YOU SEE IT')
-
-# 也可以使用 regex
-@bot.message(r'跟著我說(.*)')
-async def say_what(ctx, msg):
-    await ctx.reply(msg)
-
 bot.run()
 ```
 
