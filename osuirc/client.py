@@ -37,7 +37,7 @@ class IrcClient:
         self.running = True
 
         try:
-            self.loop.run_until_complete(self.main())
+            self.loop.run_until_complete(self.start())
         except KeyboardInterrupt:
             self.stop()
         finally:
@@ -46,7 +46,7 @@ class IrcClient:
     def stop(self):
         self.running = False
 
-    async def main(self):
+    async def start(self):
         self.events = ClientEvents(self.loop)
         self.sendmsg_queue = asyncio.Queue()
 
