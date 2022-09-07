@@ -47,7 +47,7 @@ class IrcClient:
         self.running = False
 
     async def start(self):
-        self.events = ClientEvents(self.loop)
+        self.events = ClientEvents()
         self.sendmsg_queue = asyncio.Queue()
 
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
