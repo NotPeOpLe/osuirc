@@ -306,7 +306,7 @@ class MultiplayerHandler:
             elif flag == "Team Blue":
                 team = TeamType.Blue
             elif flag == "Team Red":
-                team == TeamType.Red
+                team = TeamType.Red
             else:
                 enabled_mods = Mods.from_str(*flag.split(", "))
 
