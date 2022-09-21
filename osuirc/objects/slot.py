@@ -1,6 +1,6 @@
 from typing import Dict
 
-from osuirc.objects.osuenums import Mods, TeamType
+from osuirc.objects.enums import Mods, TeamType
 
 
 class Slot(object):
@@ -11,7 +11,7 @@ class Slot(object):
         status: str = "Not Ready",
         is_host: bool = False,
         team: TeamType = TeamType.Neutral,
-        enabled_mods: Mods = Mods.NoMod
+        enabled_mods: Mods = Mods.NoMod,
     ):
         self.username: str = username
         self.user_id: int = user_id
@@ -45,11 +45,12 @@ class Slots(object):
         status: str = "Not Ready",
         is_host: bool = False,
         team: TeamType = TeamType.Neutral,
-        enabled_mods: Mods = Mods.NoMod
+        enabled_mods: Mods = Mods.NoMod,
     ):
         """新增使用者"""
         self._slots[slot_number] = Slot(
-            username, user_id, status, is_host, team, enabled_mods)
+            username, user_id, status, is_host, team, enabled_mods
+        )
         self._username_slot[username] = slot_number
 
     def remove(self, slot_number: int):

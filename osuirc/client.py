@@ -11,12 +11,21 @@ from .utils.events import ClientEvents
 
 log = logging.getLogger("IrcClient")
 
+
 class IrcClient:
-    def __init__(self, nickname: str, password: str, *, debug: bool = False, prefix: str = '!', api_key: str = None) -> None:
+    def __init__(
+        self,
+        nickname: str,
+        password: str,
+        *,
+        debug: bool = False,
+        prefix: str = "!",
+        api_key: str = None,
+    ) -> None:
         # static
-        self.host: str = 'cho.ppy.sh'
+        self.host: str = "cho.ppy.sh"
         self.port: int = 6667
-        self.encoding: str = 'UTF-8'
+        self.encoding: str = "UTF-8"
         self.nickname: str = nickname
         self.password: str = password
         self.api_key: str = api_key
@@ -41,7 +50,7 @@ class IrcClient:
         except KeyboardInterrupt:
             self.stop()
         finally:
-            log.info('Closed')
+            log.info("Closed")
 
     def stop(self):
         self.running = False
@@ -52,21 +61,20 @@ class IrcClient:
 
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
 
-        await self.send_command(f'PASS {self.password}')
-        await self.send_command(f'NICK {self.nickname}')
+        await self.send_command(f"PASS {self.password}")
+        await self.send_command(f"NICK {self.nickname}")
 
-        await asyncio.gather(
-            self.listen(),
-            self.sender()
-        )
+        await asyncio.gather(self.listen(), self.sender())
 
     async def send_command(self, content: str):
-        self.writer.write((content + '\r\n').encode(self.encoding))
-        log.debug(f'SEND_COMMAND: {content=}')
+        self.writer.write((content + "\r\n").encode(self.encoding))
+        log.debug(f"SEND_COMMAND: {content=}")
 
-    async def send(self, target, content: str, *, action: bool = False, ignore_limit: bool = False):
-        _content = f'\x01ACTION {content}\x01' if action else content
-        task = self.send_command(f'PRIVMSG {target} :{_content}')
+    async def send(
+        self, target, content: str, *, action: bool = False, ignore_limit: bool = False
+    ):
+        _content = f"\x01ACTION {content}\x01" if action else content
+        task = self.send_command(f"PRIVMSG {target} :{_content}")
 
         if not ignore_limit:
             self.sendmsg_queue.put_nowait(task)
@@ -77,21 +85,21 @@ class IrcClient:
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = ['#',''][channel[0] == '#'] + channel
+            channel_name = ["#", ""][channel[0] == "#"] + channel
         else:
-            raise ValueError('channel 參數只支援 Channel、str 類別')
+            raise ValueError("channel 參數只支援 Channel、str 類別")
 
-        await self.send_command(f'JOIN {channel_name}')
+        await self.send_command(f"JOIN {channel_name}")
 
     async def part(self, channel: Union[Channel, str]):
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = ['#',''][channel[0] == '#'] + channel
+            channel_name = ["#", ""][channel[0] == "#"] + channel
         else:
-            raise ValueError('channel 參數只支援 Channel、str 類別')
+            raise ValueError("channel 參數只支援 Channel、str 類別")
 
-        await self.send_command(f'PART {channel_name}')
+        await self.send_command(f"PART {channel_name}")
 
     async def listen(self):
         while self.running:
@@ -99,7 +107,7 @@ class IrcClient:
                 payload = raw.decode(self.encoding).strip()
                 asyncio.create_task(self.handler(payload))
             else:
-                raise EmptyError('空資料')
+                raise EmptyError("空資料")
 
     async def sender(self):
         while self.running:
@@ -108,26 +116,29 @@ class IrcClient:
             await asyncio.sleep(self.limit)
 
     def get_channel(self, channel_name: str) -> Union[Channel, MpChannel]:
-        if channel_name[0] != '#':
+        if channel_name[0] != "#":
             if channel_name.lower() == self.nickname.lower():
                 return Channel(self, channel_name)
-            channel_name = '#' + channel_name
-        
+            channel_name = "#" + channel_name
+
         channel = self.commands.get(channel_name)
         if channel is None:
-            channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](self, channel_name)
-            log.debug(f'NEW_CHANNEL: {channel=}')
-        
+            channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](
+                self, channel_name
+            )
+            log.debug(f"NEW_CHANNEL: {channel=}")
+
         return channel
 
     def command(self, name: str = None):
         def wapper(func):
             cmd_name = name or func.__name__
             self.commands[cmd_name] = func
+
         return wapper
 
     async def call_command(self, ctx: Message):
-        if ctx.content[0] == '!':
+        if ctx.content[0] == "!":
             ctx_split = ctx.content.removeprefix(self.prefix).split()
             cmd = ctx_split[0]
             args = ctx_split[1:]
@@ -135,7 +146,7 @@ class IrcClient:
             if command := self.commands.get(cmd):
                 return asyncio.create_task(command(ctx, *args))
         else:
-            if ctx.author.username == 'BanchoBot' and not ctx.is_private:
+            if ctx.author.username == "BanchoBot" and not ctx.is_private:
                 return asyncio.create_task(self.mphandler(ctx))
 
     # Events

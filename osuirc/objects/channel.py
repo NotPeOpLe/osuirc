@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Set
 
-from ..objects.osuenums import Mods, ScoreMode, TeamMode
+from .enums import Mods, ScoreMode, TeamMode
 from ..objects.slot import Slots
 from ..utils.errors import NotInChannel
 
@@ -15,7 +15,7 @@ class Channel(object):
         self.joined: bool = True
 
         # 創建後更新
-        self.topic: str = ''
+        self.topic: str = ""
         self.created_time: float = 0.0
         self.users: Set[str] = set()
 
@@ -29,14 +29,18 @@ class Channel(object):
     def is_mutiplayer(self):
         return self.name[:4] == "#mp_"
 
-    async def send(self, content: str, *, action: bool = False, ignore_limit: bool = False) -> None:
+    async def send(
+        self, content: str, *, action: bool = False, ignore_limit: bool = False
+    ) -> None:
         if not self.joined:
             raise NotInChannel(f"無法將訊息傳送到'{self.name}'，因為你已離開頻道。")
 
-        await self.__client.send(self.name, content, action=action, ignore_limit=ignore_limit)
+        await self.__client.send(
+            self.name, content, action=action, ignore_limit=ignore_limit
+        )
 
     async def part(self) -> None:
-        await self.__client.send_command(f'PART {self.name}')
+        await self.__client.send_command(f"PART {self.name}")
 
 
 class MpChannel(Channel):

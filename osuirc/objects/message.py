@@ -8,14 +8,16 @@ if TYPE_CHECKING:
 
 
 class Message(object):
-    def __init__(self, client: "IrcClient", author: User, target: str, content: str) -> None:
+    def __init__(
+        self, client: "IrcClient", author: User, target: str, content: str
+    ) -> None:
         self.__client: "IrcClient" = client
         self.__author: User = author
         self.__target: str = target
         self.__content: str = content
         # 如果訊息類類型私人，那頻道將會是 client.nickname
         self.__channel = self.__client.get_channel(target)
-        self.__private = target[0] != '#'
+        self.__private = target[0] != "#"
 
     @property
     def author(self) -> User:
@@ -33,9 +35,13 @@ class Message(object):
     def is_private(self) -> bool:
         return self.__private
 
-    async def reply(self, content: str, *, action: bool = False, ignore_limit: bool = False):
+    async def reply(
+        self, content: str, *, action: bool = False, ignore_limit: bool = False
+    ):
         """
         快速回復，如果發送者(sender)是在頻道上發言，則會回覆在頻道；發送者(sender)是用私人訊息，則會回覆給發送者
         """
         target = self.author.username if self.is_private else self.channel.name
-        await self.__client.send(target, content, action=action, ignore_limit=ignore_limit)
+        await self.__client.send(
+            target, content, action=action, ignore_limit=ignore_limit
+        )

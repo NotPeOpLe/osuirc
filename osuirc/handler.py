@@ -5,7 +5,7 @@ from logging import Logger
 from typing import TYPE_CHECKING, Coroutine, Dict, Pattern, Union
 
 from .objects.message import Message
-from .objects.osuenums import GameMode, Mods, ScoreMode, TeamMode, TeamType
+from .objects.enums import GameMode, Mods, ScoreMode, TeamMode, TeamType
 from .objects.user import User
 from .utils.errors import LoginFailError
 from .utils.regex import *
@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 
 log = logging.getLogger("IrcClient")
+
 
 class IrcHandler:
     def __init__(self, client: "IrcClient") -> None:
@@ -45,7 +46,7 @@ class IrcHandler:
             if m := re.match(pattern, payload):
                 return await self.events[pattern](*m.groups())
 
-        log.debug(f'NOT PROCESSED: {payload=}')  # 無處理方式的訊息
+        log.debug(f"NOT PROCESSED: {payload=}")  # 無處理方式的訊息
 
     async def nothing(self, *_):
         return
@@ -56,9 +57,9 @@ class IrcHandler:
 
     async def on_motd(self, code: str, message: str):
         log.debug(message)
-        if code == '375':
+        if code == "375":
             self.client.events.motd_start.set()
-        elif code == '376':
+        elif code == "376":
             self.client.events.motd_end.set()
         else:
             pass
@@ -68,16 +69,16 @@ class IrcHandler:
         await self.client.events.motd_start.wait()
         await self.client.events.motd_end.wait()
         asyncio.create_task(self.client.on_ready())
-        log.debug('ON_READY.')
+        log.debug("ON_READY.")
 
     async def on_login_fail(self, message: str):
-        log.debug(f'ON_LOGIN_FAIL: {message=}')
+        log.debug(f"ON_LOGIN_FAIL: {message=}")
         raise LoginFailError()
 
     async def on_ping(self, content: str):
-        await self.client.send_command(f'PONG {content}')
+        await self.client.send_command(f"PONG {content}")
         asyncio.create_task(self.client.on_ping(content))
-        log.debug(f'ON_PING: {content=}')
+        log.debug(f"ON_PING: {content=}")
 
     async def on_quit(self, user: str, reason: str):
         asyncio.create_task(self.client.on_quit(user, reason))
@@ -86,7 +87,7 @@ class IrcHandler:
         channel = self.client.get_channel(channel_name)
         channel.users.add(user)
         asyncio.create_task(self.client.on_join(user, channel))
-        log.debug(f'ON_JOIN: {user=} {channel_name=}')
+        log.debug(f"ON_JOIN: {user=} {channel_name=}")
 
     async def on_part(self, user: str, channel_name: str):
         channel = self.client.channels[channel_name]
@@ -94,7 +95,7 @@ class IrcHandler:
         if user.lower() == self.client.nickname.lower():
             channel.joined = False
         asyncio.create_task(self.client.on_part(user, channel))
-        log.debug(f'ON_PART: {user=} {channel_name=}')
+        log.debug(f"ON_PART: {user=} {channel_name=}")
 
     async def on_message(self, sender: str, target: str, content: str):
         if not (user := self.client.users_cache.get(sender)):
@@ -102,53 +103,55 @@ class IrcHandler:
             self.client.users_cache[sender] = user
         context = Message(self.client, user, target, content)
         if sender == self.client.nickname:
-            if content[0] == ':':
+            if content[0] == ":":
                 await self.client.send_command(content[1:])
         asyncio.create_task(self.client.on_message(context))
-        log.debug(f'ON_MESSAGE: {user=} {target=} {content=}')
+        log.debug(f"ON_MESSAGE: {user=} {target=} {content=}")
 
     async def on_mode(self, admin: str, channel_name: str, mode: str, user: str):
-        log.debug(f'ON_MODE: {admin=} {channel_name=} {mode=} {user=}')
+        log.debug(f"ON_MODE: {admin=} {channel_name=} {mode=} {user=}")
 
     async def on_chtopic(self, channel_name: str, topic: str):
         channel = self.client.channels[channel_name]
         if m := re.match(MP_GAMEID, topic):
             game_id = int(m.group(1))
             channel.game_id = game_id
-        log.debug(f'ON_CHANNEL_TOPIC: {channel_name=} {topic=}')
+        log.debug(f"ON_CHANNEL_TOPIC: {channel_name=} {topic=}")
 
     async def on_chtime(self, channel_name: str, time: int):
         channel = self.client.channels[channel_name]
         channel.created_time = float(time)
-        log.debug(f'ON_CHANNEL_CREATED_TIME: {channel_name=} {time=}')
+        log.debug(f"ON_CHANNEL_CREATED_TIME: {channel_name=} {time=}")
 
     async def on_chusers(self, channel_name: str, users: str):
         channel = self.client.channels[channel_name]
         channel.users = set((u[1:] for u in users.split()))
-        log.debug(f'ON_CHANNEL_USERS: {channel_name=} {users=}')
+        log.debug(f"ON_CHANNEL_USERS: {channel_name=} {users=}")
 
     async def on_endofnames(self, channel_name: str):
-        log.debug(f'ON_ENDOFNAMES: {channel_name=}')
-        log.debug(f'channel={channel.__dict__}')
+        log.debug(f"ON_ENDOFNAMES: {channel_name=}")
+        log.debug(f"channel={channel.__dict__}")
         channel = self.client.channels[channel_name]
-        
+
     async def on_whoisuser(self, username: str, user_id: str):
         user = self.client.users_cache[username]
         user.user_id = int(user_id)
-        log.debug(f'ON_WHOISUSER: {username=} {user_id=}')
-        
+        log.debug(f"ON_WHOISUSER: {username=} {user_id=}")
+
     async def on_whoisserver(self, username: str, host: str, server_info: str):
-        log.debug(f'ON_WHOISSERVER: {username=} {host=} {server_info=}')
-    
+        log.debug(f"ON_WHOISSERVER: {username=} {host=} {server_info=}")
+
     async def on_whoischannels(self, username: str, channels: str):
-        log.debug(f'ON_WHOISCHANNELS: {username=} {channels=}')
-        
-    async def on_endofwhois(self, username: str,):
-        log.debug(f'ON_ENDOFWHOIS: {username=} End of /WHOIS list')
+        log.debug(f"ON_WHOISCHANNELS: {username=} {channels=}")
+
+    async def on_endofwhois(
+        self,
+        username: str,
+    ):
+        log.debug(f"ON_ENDOFWHOIS: {username=} End of /WHOIS list")
 
 
 class MultiplayerHandler:
-
     def __init__(self, client: "IrcClient") -> None:
         self.client = client
         self.events: Dict[Pattern[str], Coroutine] = {
@@ -184,7 +187,7 @@ class MultiplayerHandler:
             MP_LEFT: self.on_left,
             MP_ALL_READY: self.on_ready,
             MP_FINISED_PLAYING: self.on_result,
-            MP_FINISED: self.on_finished
+            MP_FINISED: self.on_finished,
         }
 
     async def __call__(self, ctx: Message) -> None:
@@ -259,7 +262,9 @@ class MultiplayerHandler:
     # MP_UPDATE_MAP
     # MP_CHANGED_MAP
     # MP_CHANGED_MAP2
-    async def update_current_map(self, channel: "MpChannel", map_id: str, map_repl: str):
+    async def update_current_map(
+        self, channel: "MpChannel", map_id: str, map_repl: str
+    ):
         # !mp settings
         # Beatmap: https://osu.ppy.sh/b/3360065 Raimukun - Firmament star [Cup]
         # host change map
@@ -270,7 +275,9 @@ class MultiplayerHandler:
         channel.current_map_repr = map_repl
 
     # MP_UPDATE_SET
-    async def update_settings(self, channel: "MpChannel", team_mode: str, score_mode: str):
+    async def update_settings(
+        self, channel: "MpChannel", team_mode: str, score_mode: str
+    ):
         # !mp settings
         # Team mode: HeadToHead, Win condition: Score
         channel.team_mode = TeamMode[team_mode]
@@ -291,7 +298,7 @@ class MultiplayerHandler:
         status: str,
         user_id: str,
         user_name: str,
-        flags: str
+        flags: str,
     ):
         # !mp settings
         # Slot 1  Not Ready https://osu.ppy.sh/u/6008293 _CHIMERA        [Host / Team Blue / Hidden]
@@ -317,7 +324,7 @@ class MultiplayerHandler:
             status=status,
             is_host=is_host,
             team=team,
-            enabled_mods=enabled_mods
+            enabled_mods=enabled_mods,
         )
 
     # MP_STARTED
@@ -328,7 +335,10 @@ class MultiplayerHandler:
         channel.started = True
 
     # MP_ABORTED
-    async def on_abort(self, channel: "MpChannel", ):
+    async def on_abort(
+        self,
+        channel: "MpChannel",
+    ):
         # !mp abort
         # success: Aborted the match
         # fail: The match is not in progress
@@ -345,7 +355,9 @@ class MultiplayerHandler:
         channel.game_mode = GameMode[game_mode]
 
     # MP_CHANGED_MODS
-    async def on_change_mods(self, channel: "MpChannel", enabled_mods: str, freemod: str):
+    async def on_change_mods(
+        self, channel: "MpChannel", enabled_mods: str, freemod: str
+    ):
         # no params: Disabled all mods, disabled FreeMod
         # has params: Enabled NoFail, disabled FreeMod
         # freemod: Disabled all mods, enabled FreeMod
@@ -369,10 +381,10 @@ class MultiplayerHandler:
         channel.refs.remove(ref)
 
     # async def update_refs(self, channel: "MpChannel", ):
-        # Match referees:
-        # xxxx
-        # _CHIMERA
-        # 這玩意有點麻煩 可能要用 event 暫時不使用
+    # Match referees:
+    # xxxx
+    # _CHIMERA
+    # 這玩意有點麻煩 可能要用 event 暫時不使用
 
     # MP_KICKED
     async def on_kick(self, channel: "MpChannel", user: str):
@@ -400,7 +412,9 @@ class MultiplayerHandler:
         pass
 
     # MP_JOIN
-    async def on_join(self, channel: "MpChannel", user: str, slot: str, team: Union[str, None]):
+    async def on_join(
+        self, channel: "MpChannel", user: str, slot: str, team: Union[str, None]
+    ):
         # _CHIMERA joined in slot 1.
         # _CHIMERA joined in slot 1 for team blue/red.
         channel.slots.set(int(slot), user, TeamType(team))
@@ -412,7 +426,7 @@ class MultiplayerHandler:
         pass
 
     # async def on_changing_map(self, channel: "MpChannel", ):
-        # Host is changing map...
+    # Host is changing map...
 
     # MP_ALL_READY
     async def on_ready(self, channel: "MpChannel"):
