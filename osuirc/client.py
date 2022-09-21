@@ -2,6 +2,8 @@ import asyncio
 import logging
 from typing import Dict, Union, Callable
 
+from osuirc.objects.enums import MpEvent
+
 from .handler import IrcHandler, MultiplayerHandler
 from .objects.channel import Channel, MpChannel
 from .objects.message import Message
@@ -136,6 +138,31 @@ class IrcClient:
             self.commands[cmd_name] = func
 
         return wapper
+
+    def mp_listen(self, event: MpEvent):
+        """
+        ## MP處理擴充
+        範例:
+        ```PY
+        bot = IrcClient()
+        @bot.mp_listen(MpEvent.PlayersAllReady)
+        async def on_ready(ctx):
+            await ctx.reply('!mp start 10')
+        ```
+        """
+        mp_event = MpEvent(event)
+
+        def decorator(func):
+            if mp_event == MpEvent.Unknow:
+                # print(f"{event} 活動事件無效")
+                # print(f"WARNING: {func.__name__} 未註冊至事件觸發")
+                return
+            if mpevt := self.mphandler.ext_events.get(mp_event):
+                mpevt.add(func)
+            else:
+                self.mphandler.ext_events[mp_event] = set([func])
+
+        return decorator
 
     async def call_command(self, ctx: Message):
         if ctx.content[0] == "!":
