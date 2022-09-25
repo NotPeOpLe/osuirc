@@ -9,8 +9,12 @@ class User(object):
     def __init__(self, client: "IrcClient", username: str, user_id: int = None) -> None:
         self.__client = client
         self.username = username
-        self.user_id = user_id
 
+        if username == 'BanchoBot':
+            self.user_id = 3
+            return
+
+        self.user_id = user_id
         self.__client.loop.create_task(self.__client.send_command("WHOIS " + username))
 
     def __repr__(self) -> str:
