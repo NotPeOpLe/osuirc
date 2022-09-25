@@ -125,7 +125,7 @@ class IrcHandler:
 
     async def on_chusers(self, channel_name: str, users: str):
         channel = self.client.channels[channel_name]
-        channel.users = set((u[1:] for u in users.split()))
+        channel.users = set((u.removeprefix('@').removeprefix('+') for u in users.split()))
         log.debug(f"ON_CHANNEL_USERS: {channel_name=} {users=}")
 
     async def on_endofnames(self, channel_name: str):
