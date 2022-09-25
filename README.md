@@ -38,75 +38,93 @@ async def roll(ctx, num=100):
 bot.run()
 ```
 
-## 2022-03-30 更新
+## 2022-09-25 更新
 
-新增 MultiplayerHandler，此程式專門處理 MP 房的事件及管理房間的狀態
+MultiplayerHandler 完全大改版，我給它搞得很簡化了，不過可能會需要文檔參考之類的(懶)
 
 ```py
 import logging
+import typing
 from asyncio import Event
-from typing import Union
-from osuirc import IrcClient, Message, MpChannel, Channel, Mods
-from osuirc.handler import MultiplayerHandler
 from rich.logging import RichHandler
+from osuirc import IrcClient, Message
+from osuirc.utils.events import *
+
+if typing.TYPE_CHECKING:
+    from osuirc import MpChannel
 
 
+FORMAT = "%(message)s"
 logging.basicConfig(
-    level="NOTSET", format="%(message)s", datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)]
+    level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
 )
 
-class CutsomMultiplayerHandler(MultiplayerHandler):
-    async def update_player_count(self, channel: "MpChannel", player_count: str):
-        channel.player_i = 0 # 設定起始
-        await super().update_player_count(channel, player_count)
+NICK = "xxxx"
+PASS = "xxxx"
 
-    async def update_palyer(self, channel: "MpChannel", slot: str, status: str, user_id: str, user_name: str, flags: str):
-        channel.player_i += 1
-        await super().update_palyer(channel, slot, status, user_id, user_name, flags)
-        if channel.player_i == channel.player_count:
-            for p in channel.slots:
-                if channel.slots[p].status != "Ready": # 檢查狀態是否為 Ready
-                    channel.checked = False
-                    break
-                if Mods.NoFail not in channel.slots[p].enabled_mods: # 檢查玩家Mods是否有 NoFail
-                    channel.checked = False
-                    break
-                channel.checked = True
-            channel.check_players.set() # flag set
-
-    async def on_ready(self, channel: "MpChannel"):
-        # 所有人準備時進行檢查
-        channel.check_players = Event() # flag
-        await channel.send("!mp settings")
-        await channel.check_players.wait() # 等待檢查完
-        if channel.checked:
-            await channel.send("!mp start 10")
-        else:
-            await channel.send("檢查失敗,請確認已準備及攜帶NoFail!")
-
-class Bot(IrcClient):
-    joined = Event()
-    joined_channel = None
-
-    async def on_ready(self):
-        await self.send("BanchoBot", "!mp make test")
-        await self.joined.wait()
-        await self.send(self.joined_channel, "!mp settings")
-
-    async def on_join(self, user: str, channel: Union["Channel", "MpChannel"]):
-        if user.lower() == self.nickname.lower():
-            self.joined_channel = channel
-            self.joined.set()
-
-bot = Bot(nickname="xxxxxxxx", password="xxxxxx")
-bot.mphandler = CutsomMultiplayerHandler(bot)
+bot = IrcClient(NICK, PASS)
 
 
 @bot.command()
-async def ping(ctx: Message):
-    await ctx.reply("pong")
+async def join_mp(ctx: Message, mpid: str):
+    if not ctx.is_private:
+        return
+
+    if mpid.isdigit():
+        await bot.join("#mp_" + mpid)
+        await ctx.reply("我正在進入到 #mp_" + mpid)
 
 
-if __name__ == "__main__":
-    bot.run()
+@bot.command()
+async def start(ctx: Message):
+    if not ctx.channel.is_mutiplayer:
+        return
+
+    if ctx.channel.started:
+        await ctx.reply("遊戲已經開始了!")
+    else:
+        await ctx.reply("!mp start 10")
+
+
+@bot.mp_listen(AllPlayerReady)
+async def auto_start(event: AllPlayerReady):
+    """
+    當觸發 AllPlayerReady 時檢查房間狀態確認所有玩家是否真的都準備及都有帶NoFail，否則不予開始遊戲
+    auto_start -> 這裡會先發送 !mp settings ，暫時停止運行先放一邊
+    on_player_count_changed -> 在 channel 初始化人數計數器 
+    on_slot_updated -> 當計數器與channel.player_count相同，開始檢查所有玩家是否準備與帶NoFail，檢查完設置結果
+    auto_start -> 判斷是否檢查成功，是則開始遊戲，否則不開始遊戲並提示。
+    """
+    event.channel.check_players = Event()  # Flag
+    await event.channel.send("!mp settings")
+    await event.channel.check_players.wait()  # 等待檢查完
+    if event.channel.checked:
+        await event.channel.send("!mp start 10")
+    else:
+        await event.channel.send("檢查失敗,請確認已準備及攜帶NoFail!")
+
+
+@bot.mp_listen(MatchPlayerCountChanged)
+async def on_player_count_changed(event: MatchPlayerCountChanged):
+    event.channel.player_i = 0  # 設定起始
+
+
+@bot.mp_listen(SlotUpdated)
+async def on_slot_updated(event: SlotUpdated):
+    event.channel.player_i += 1
+
+    # 確認所有玩家資料都有更新
+    if event.channel.player_i == event.channel.player_count:
+        for player in event.channel.slots:
+            if player.status != "Ready":
+                event.channel.checked = False
+                break
+            if Mods.NoFail not in player.enabled_mods:
+                event.channel.checked = False
+                break
+            event.channel.checked = True
+        event.channel.check_players.set()
+
+
+bot.run()
 ```

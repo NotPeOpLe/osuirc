@@ -89,37 +89,3 @@ class Mods(IntFlag):
                 logging.warning(f"{m} not in enum Mods")
                 continue
         return result
-
-
-class MpEvent(Enum):
-    Unknow = None
-    MatchLocked = "locked"
-    MatchUnlocked = "unlock"
-    ChangedMatchSize = "ChangedMatchSize"
-    ChangedMatchSettings = "ChangedMatchSettings"
-    PlayerMoved = "PlayerMoved"
-    ChangedHost = "ChangedHost"
-    ChangedRoomName = "ChangedRoomName"
-    ChangedMap = "ChangedMap"
-    SlotUpdate = "SlotUpdate"
-    Started = "Started"
-    Aborted = "Aborted"
-    PlayerChangedTeam = "PlayerChangedTeam"
-    ChangedMode = "ChangedMode"
-    ChangedMods = "ChangedMods"
-    ChangedMatchPassword = "ChangedMatchPassword"
-    AddedRef = "AddedRef"
-    RemovedRef = "RemovedRef"
-    CountdownAborted = "CountdownAborted"
-    PlayerBanned = "PlayerBanned"
-    PlayerKicked = "PlayerKicked"
-    PlayerJoin = "PlayerJoin"
-    PlayerLeft = "PlayerLeft"
-    MatchClosed = "MatchClosed"
-    PlayersAllReady = "players_all_ready"
-    PlayerFinished = "PlayerFinished"
-    MatchFinished = "MatchFinished"
-
-    @classmethod
-    def _missing_(cls, value):
-        return cls.Unknow

@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Set
 
+from osuirc.objects.osu import Beatmap
+
 from .enums import Mods, ScoreMode, TeamMode
 from ..objects.slot import Slots
 from ..utils.errors import NotInChannel
@@ -57,8 +59,7 @@ class MpChannel(Channel):
         self.game_mode: int = 0
         self.active_mods: Mods = Mods.NoMod
         self.freemod: bool = False
-        self.current_map_id: int = 0
-        self.current_map_repr: str = ""
+        self.current_map: Beatmap | None = None
         self.host: str = None
         self.started: bool = False
         self.locked: bool = False

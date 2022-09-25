@@ -1,16 +1,16 @@
 import asyncio
 import logging
-from typing import Dict, Union, Callable
-
-from osuirc.objects.enums import MpEvent
+from typing import Any, Dict, TypeVar, Union, Callable
 
 from .handler import IrcHandler, MultiplayerHandler
 from .objects.channel import Channel, MpChannel
 from .objects.message import Message
 from .objects.user import User
 from .utils.errors import EmptyError
-from .utils.events import ClientEvents
+from .utils.events import BaseMatchEvent, ClientEvents
 
+
+MatchEvent = TypeVar("MatchEvent", bound=BaseMatchEvent)
 log = logging.getLogger("IrcClient")
 
 
@@ -87,7 +87,7 @@ class IrcClient:
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = ["#", ""][channel[0] == "#"] + channel # 如果輸入沒有開頭 `#` 會自動補上
+            channel_name = ["#", ""][channel[0] == "#"] + channel  # 如果輸入沒有開頭 `#` 會自動補上
         else:
             raise ValueError("channel 參數只支援 Channel、str 類別")
 
@@ -97,7 +97,7 @@ class IrcClient:
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = ["#", ""][channel[0] == "#"] + channel # 如果輸入沒有開頭 `#` 會自動補上
+            channel_name = ["#", ""][channel[0] == "#"] + channel  # 如果輸入沒有開頭 `#` 會自動補上
         else:
             raise ValueError("channel 參數只支援 Channel、str 類別")
 
@@ -125,7 +125,9 @@ class IrcClient:
 
         channel = self.channels.get(channel_name)
         if channel is None:
-            channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](self, channel_name)
+            channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](
+                self, channel_name
+            )
             self.channels[channel_name] = channel
             log.debug(f"NEW_CHANNEL: {channel=}")
 
@@ -138,28 +140,26 @@ class IrcClient:
 
         return wapper
 
-    def mp_listen(self, event: MpEvent):
+    def mp_listen(self, event: MatchEvent):
         """
         ## MP處理擴充
         範例:
         ```PY
+        from osuirc import IrcClient
+        from osuirc.utils.events import *
+
         bot = IrcClient()
-        @bot.mp_listen(MpEvent.PlayersAllReady)
-        async def on_ready(ctx):
-            await ctx.reply('!mp start 10')
+        @bot.mp_listen(event.AllPlayerReady)
+        async def on_ready(event):
+            await event.channel.send('!mp start 10')
         ```
         """
-        mp_event = MpEvent(event)
 
-        def decorator(func):
-            if mp_event == MpEvent.Unknow:
-                # print(f"{event} 活動事件無效")
-                # print(f"WARNING: {func.__name__} 未註冊至事件觸發")
-                return
-            if mpevt := self.mphandler.ext_events.get(mp_event):
+        def decorator(func: Callable[[MatchEvent], Any]):
+            if mpevt := self.mphandler.ext_events.get(event):
                 mpevt.add(func)
             else:
-                self.mphandler.ext_events[mp_event] = set([func])
+                self.mphandler.ext_events[event] = set([func])
 
         return decorator
 

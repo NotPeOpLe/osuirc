@@ -73,4 +73,4 @@ class Slots(object):
             return self._slots[self._username_slot[key]]
 
     def __iter__(self):
-        return iter(self._slots)
+        return iter(self._slots.values())
