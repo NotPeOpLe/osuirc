@@ -87,7 +87,7 @@ class IrcClient:
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = ["#", ""][channel[0] == "#"] + channel
+            channel_name = ["#", ""][channel[0] == "#"] + channel # 如果輸入沒有開頭 `#` 會自動補上
         else:
             raise ValueError("channel 參數只支援 Channel、str 類別")
 
@@ -97,7 +97,7 @@ class IrcClient:
         if isinstance(channel, Channel):
             channel_name = channel.name
         elif isinstance(channel, str):
-            channel_name = ["#", ""][channel[0] == "#"] + channel
+            channel_name = ["#", ""][channel[0] == "#"] + channel # 如果輸入沒有開頭 `#` 會自動補上
         else:
             raise ValueError("channel 參數只支援 Channel、str 類別")
 
@@ -125,9 +125,8 @@ class IrcClient:
 
         channel = self.commands.get(channel_name)
         if channel is None:
-            channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](
-                self, channel_name
-            )
+            channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](self, channel_name)
+            self.channels[channel_name] = channel
             log.debug(f"NEW_CHANNEL: {channel=}")
 
         return channel
