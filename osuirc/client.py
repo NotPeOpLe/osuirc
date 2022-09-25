@@ -123,7 +123,7 @@ class IrcClient:
                 return Channel(self, channel_name)
             channel_name = "#" + channel_name
 
-        channel = self.commands.get(channel_name)
+        channel = self.channels.get(channel_name)
         if channel is None:
             channel = [Channel, MpChannel][channel_name[:4] == "#mp_"](self, channel_name)
             self.channels[channel_name] = channel
