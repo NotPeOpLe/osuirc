@@ -130,8 +130,8 @@ class IrcHandler:
 
     async def on_endofnames(self, channel_name: str):
         log.debug(f"ON_ENDOFNAMES: {channel_name=}")
-        log.debug(f"channel={channel.__dict__}")
         channel = self.client.channels[channel_name]
+        log.debug(f"channel={channel.__dict__}")
 
     async def on_whoisuser(self, username: str, user_id: str):
         user = self.client.users_cache[username]
