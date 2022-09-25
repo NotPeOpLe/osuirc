@@ -34,7 +34,7 @@ class IrcHandler:
     def __init__(self, client: "IrcClient") -> None:
         self.client: "IrcClient" = client
 
-        self.events: Dict[Pattern[str], Coroutine] = {
+        self.events: Dict[Pattern[str], Callable] = {
             WELCOME: self.on_welcome,
             MOTD: self.on_motd,
             PING: self.on_ping,
