@@ -321,11 +321,16 @@ class MultiplayerHandler:
         # Slot 1  Not Ready https://osu.ppy.sh/u/6008293 _CHIMERA        [Host / Team Blue / Hidden]
         #         No Map
         #         Ready
+
+        # 初始化
+        channel.host = None
         is_host = False
         team = TeamType.Neutral
         enabled_mods = Mods.NoMod
+
         for flag in flags.strip()[1:-1].split(" / "):
             if flag == "Host":
+                channel.host = user_name
                 is_host = True
             elif flag == "Team Blue":
                 team = TeamType.Blue
